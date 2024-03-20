@@ -29,7 +29,7 @@ public class Orders {
     private String payMn;
 
     @ManyToOne
-    @JoinColumn(name = "mem_id")
+    @JoinColumn(name = "mem_no")
     private Member member;
 
     @ManyToOne

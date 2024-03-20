@@ -21,7 +21,7 @@ public class Delivery {
     private String delPlc;
 
     @ManyToOne
-    @JoinColumn(name = "mem_id")
+    @JoinColumn(name = "mem_no")
     private Member member;
 
     @OneToMany(mappedBy = "delivery")
