@@ -1,4 +1,4 @@
-package com.idrsys.toyprojectbackend.repository.impl;
+package com.idrsys.toyprojectbackend.repository;
 
 import com.idrsys.toyprojectbackend.dto.GoodsSearchDto;
 import com.idrsys.toyprojectbackend.repository.GoodsRepositoryCustom;

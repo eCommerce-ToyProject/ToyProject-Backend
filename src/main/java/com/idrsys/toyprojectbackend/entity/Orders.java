@@ -15,9 +15,9 @@ import java.util.List;
 @Table(name = "orders")
 public class Orders {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ord_no")
-    private int ordNo;
+    private Long ordNo;
 
     @Column(name = "ord_dt", nullable = false)
     private Date ordDt;

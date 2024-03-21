@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 public class GoodsSearchDto {
 
-    private String gNo;
+    private Long gNo;
     private String gName;
     private Long bNo;
     private BigDecimal gPrice;

@@ -58,9 +58,6 @@ public class MemberService {
 
     @Transactional
     public MemberDto signUp(SignUpDto signUpDto) {
-        if (memberRepository.existsById(signUpDto.getUsername())) {
-            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
-        }
         // Password 암호화
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         List<String> roles = new ArrayList<>();
@@ -69,5 +66,11 @@ public class MemberService {
         return MemberDto.toDto(member);
     }
 
+    public boolean checkIdDuplicate(String id){
+//        if (memberRepository.existsById(id)) {
+//            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+//        }
+        return memberRepository.existsById(id);
+    }
 
 }

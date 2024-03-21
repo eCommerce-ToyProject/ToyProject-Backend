@@ -13,9 +13,9 @@ import java.util.List;
 @Table(name = "delivery")
 public class Delivery {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "del_no")
-    private int delNo;
+    private Long delNo;
 
     @Column(name = "del_plc", nullable = false)
     private String delPlc;

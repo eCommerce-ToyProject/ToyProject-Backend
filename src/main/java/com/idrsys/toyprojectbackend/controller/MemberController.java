@@ -6,14 +6,14 @@ import com.idrsys.toyprojectbackend.dto.SignInDto;
 import com.idrsys.toyprojectbackend.dto.SignUpDto;
 import com.idrsys.toyprojectbackend.service.MemberService;
 import com.idrsys.toyprojectbackend.util.SecurityUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "회원", description = "회원 관련 api 입니다.")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary = "sign in - 로그인", description = "")
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody SignInDto signInDto) {
         String id = signInDto.getId();
@@ -32,15 +33,23 @@ public class MemberController {
         return jwtToken;
     }
 
-    @PostMapping("/test")
-    public String test() {
-        return SecurityUtil.getCurrentUsername();
+    @Operation(summary = "access token 테스트", description = "")
+    @PostMapping("/loginCheck")
+    public String loginCheck() {
+        return SecurityUtil.getCurrentMemberId();
     }
 
+    @Operation(summary = "sign up - 회원가입", description = "")
     @PostMapping("/sign-up")
     public ResponseEntity<MemberDto> signUp(@RequestBody SignUpDto signUpDto) {
         MemberDto savedMemberDto = memberService.signUp(signUpDto);
         return ResponseEntity.ok(savedMemberDto);
+    }
+
+    @Operation(summary = "comfirm by id 아이디 중복체크", description = "")
+    @GetMapping("/id/exists")
+    public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String id){
+        return ResponseEntity.ok(memberService.checkIdDuplicate(id));
     }
 
 }

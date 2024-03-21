@@ -12,9 +12,9 @@ import java.math.BigDecimal;
 @Table(name = "order_item")
 public class OrderItem {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_item_cd")
-    private int ordItemCd;
+    private Long ordItemCd;
 
     @Column(name = "ord_qty", nullable = false)
     private Long ordQty;
