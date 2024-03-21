@@ -16,10 +16,10 @@ public class Category {
 
     @Id
     @Column(name = "cat_cd")
-    private int cd;
+    private Long cd;
 
     @Column(name = "cat_nm", nullable = false)
-    private String name;
+    private String cName;
 
 
 }

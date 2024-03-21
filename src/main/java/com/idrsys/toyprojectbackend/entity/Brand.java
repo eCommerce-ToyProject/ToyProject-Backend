@@ -15,9 +15,9 @@ public class Brand {
 
     @Id
     @Column(name = "brand_no")
-    private int no;
+    private Long no;
 
     @Column(name = "brand_nm", nullable = false)
-    private String name;
+    private String bName;
 
 }
