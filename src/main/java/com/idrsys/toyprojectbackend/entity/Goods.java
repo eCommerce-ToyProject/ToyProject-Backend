@@ -36,7 +36,7 @@ public class Goods {
     @Column(name = "cat_cd")
     private Long cCd;
 
-    @OneToMany(mappedBy = "goods")
+    @OneToMany(mappedBy = "goods", fetch = FetchType.EAGER)
     private List<GoodsItem> goodsItem = new ArrayList<>();
 
     @OneToMany(mappedBy = "goods_no")

@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,9 @@ public class GoodsItem {
 
     @Column(name = "item_amt_add")
     private Long iAmtAdd;
+
+    @Column(name = "item_save_qty", nullable = false)
+    private Long iSaveQty;
 
     @ManyToOne
     @JoinColumn(name = "goods_no")
