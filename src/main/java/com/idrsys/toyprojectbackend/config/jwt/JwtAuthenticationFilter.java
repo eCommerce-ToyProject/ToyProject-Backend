@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +39,18 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     // Request Header에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            return bearerToken.substring(7);
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
+        if(cookies != null && cookies.length > 0 ) {
+            for (Cookie cookie : cookies) {
+                accessToken = cookie.getValue();
+            }
+            log.info(accessToken);
+            return accessToken;
         }
+//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+//            return bearerToken.substring(7);
+//        }
         return null;
     }
 

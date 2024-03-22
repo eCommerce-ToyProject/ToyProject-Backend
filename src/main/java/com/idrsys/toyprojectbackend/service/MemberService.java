@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 //@RequiredArgsConstructor
@@ -67,10 +68,11 @@ public class MemberService {
     }
 
     public boolean checkIdDuplicate(String id){
-//        if (memberRepository.existsById(id)) {
-//            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
-//        }
         return memberRepository.existsById(id);
+    }
+
+    public Optional<Member> getMemberInfo(String id){
+        return memberRepository.findById(id);
     }
 
 }

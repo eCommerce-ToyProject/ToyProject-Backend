@@ -35,9 +35,11 @@ public class SecurityConfig {
                                 // 해당 API에 대해서는 모든 요청을 허가
                                 .requestMatchers("/members/sign-up").permitAll()	// ⭐️
                                 .requestMatchers("/members/sign-in").permitAll()
+//                                .requestMatchers("/members/loginCheck").permitAll()
                                 .requestMatchers("/members/id/exists").permitAll()
                                 //테스트를 위해서 일단 모든 요청을 허가함 추후 삭제 필요
-                                .requestMatchers("/goods/goodsList").permitAll()
+                                .requestMatchers("/goods/**").permitAll()
+                                .requestMatchers("/members/test").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 // USER 권한이 있어야 요청할 수 있음
