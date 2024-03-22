@@ -24,6 +24,9 @@ public class Goods {
     @Column(name = "brand_no")
     private Long bNo;
 
+    @Column(name = "goods_img")
+    private String gImg;
+
     @Column(name = "goods_prc", nullable = false)
     private BigDecimal gPrice;
 

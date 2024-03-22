@@ -19,6 +19,7 @@ public class GoodsDto {
     private Long gNo;
     private String gName;
     private Long bNo;
+    private String gImg;
     private BigDecimal gPrice;
     private String opt1;
     private String opt2;

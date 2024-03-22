@@ -36,6 +36,7 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
                         ,goods.gName
                         ,goods.bNo
                         ,brand.bName
+                        ,goods.gImg
                         ,goods.cCd
                         ,category.cName
                         ,goods.opt1
@@ -79,6 +80,7 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
                 goods.getGNo(),
                 goods.getGName(),
                 goods.getBNo(),
+                goods.getGImg(),
                 goods.getGPrice(),
                 goods.getOpt1(),
                 goods.getOpt2(),

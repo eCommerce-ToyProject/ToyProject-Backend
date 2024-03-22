@@ -21,6 +21,7 @@ public class GoodsSearchDto {
     private String gName;
     private Long bNo;
     private BigDecimal gPrice;
+    private String gImg;
     private String bName;
     private String cName;
     private String opt1;
