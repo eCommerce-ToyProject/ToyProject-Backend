@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,12 +46,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             for (Cookie cookie : cookies) {
                 accessToken = cookie.getValue();
             }
-            log.info(accessToken);
+            if(Objects.equals(accessToken, "undefined")){
+                return null;
+            }
             return accessToken;
         }
-//        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-//            return bearerToken.substring(7);
-//        }
         return null;
     }
 

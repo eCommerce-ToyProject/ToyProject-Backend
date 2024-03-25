@@ -24,6 +24,15 @@ public class Delivery {
     @JoinColumn(name = "mem_no")
     private Member member;
 
+    @Column(name = "zip_code", nullable = false)
+    private String zCode;
+
+    @Column(name = "detailed address", nullable = false)
+    private String detailAddress;
+
+    @Column(name = "designation")
+    private String designation;
+
     @OneToMany(mappedBy = "delivery")
     private List<Orders> orders = new ArrayList<>();
 }

@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 //테스트를 위해서 일단 모든 요청을 허가함 추후 삭제 필요
                                 .requestMatchers("/goods/**").permitAll()
                                 .requestMatchers("/members/test").permitAll()
+                                .requestMatchers("/delivery/**").permitAll()
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 // USER 권한이 있어야 요청할 수 있음

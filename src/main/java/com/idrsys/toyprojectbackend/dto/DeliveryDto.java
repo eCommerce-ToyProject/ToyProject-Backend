@@ -15,6 +15,8 @@ public class DeliveryDto {
 
     private Long delNo;
     private String delPlc;
-    private Member member;
-    private List<Orders> orders;
+    private MemberDto member;
+    private String zCode;
+    private String detailAddress;
+    private String designation;
 }
