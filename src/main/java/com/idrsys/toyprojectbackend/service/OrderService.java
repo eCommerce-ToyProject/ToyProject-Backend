@@ -50,14 +50,6 @@ public class OrderService {
         Delivery delivery = deliveryRepository.findById(addOrdersDto.getDelNo()).orElseThrow(IllegalAccessError::new);
         OrderStatusCode statusCode = orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED").orElseThrow(IllegalAccessError::new);
 
-//        OrdersDto order = new OrdersDto();
-//        order.setOrdDt(new Date(System.currentTimeMillis()));
-//        order.setToPrc(goods.getGPrice().multiply(BigDecimal.valueOf(addOrdersDto.)));
-//        order.setPayMn(paymn);
-//        order.setMember(member);
-//
-//        order.setOrd_status_cd(statusCode);
-
         goodsItemService.updateQty(item, addOrdersDto.getQuantity());
 
         BigDecimal totalPrice = goods.getGPrice().add(item.getIAmtAdd()).multiply(BigDecimal.valueOf(addOrdersDto.getQuantity()));

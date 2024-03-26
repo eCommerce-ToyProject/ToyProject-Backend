@@ -20,12 +20,11 @@ public class GoodsItemService {
         if (updatedIQty < 0) {
             updatedISaveQty = item.getISaveQty() + updatedIQty;
             if (updatedISaveQty < 0) {
-                throw new RuntimeException("Insufficient inventory for item " + item.getNo());
+                throw new RuntimeException("상품 재고가 부족합니다. " + item.getNo());
             }
             updatedIQty = 0L;
         }
 
-        // Use the builder pattern to create a new GoodsItem instance with updated quantity
         GoodsItem updatedItem = GoodsItem.builder()
                 .no(item.getNo())
                 .name(item.getName())

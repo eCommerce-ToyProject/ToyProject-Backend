@@ -44,7 +44,7 @@ public class Orders {
     @JoinColumn(name = "del_no")
     private Delivery delivery;
 
-    @OneToMany(mappedBy = "ord_no")
+    @OneToMany(mappedBy = "ord_no", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
 }

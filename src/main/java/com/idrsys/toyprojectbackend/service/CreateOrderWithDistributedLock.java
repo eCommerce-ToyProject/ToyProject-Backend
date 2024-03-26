@@ -36,6 +36,8 @@ public class CreateOrderWithDistributedLock {
         redisson = (Redisson) redissonClient;
     }
 
+    // 트랜잭션이 커밋 후 락 해제
+    // 커밋 전에 해제 시 갱신손실 발생 및 데드락 발생 위험
     public Orders createOrder(AddOrdersDto addOrdersDto) {
         String orderLockKey = ORDER_LOCK_PREFIX + addOrdersDto.getMemberId() + addOrdersDto.getOptVal1() +addOrdersDto.getOptVal2(); /*order.getOrdNo();*/
         RLock lock = redisson.getLock(orderLockKey);
@@ -44,11 +46,11 @@ public class CreateOrderWithDistributedLock {
             if (isLocked) {
                  return orderService.createOrder(addOrdersDto);
             } else {
-                throw new RuntimeException("Failed to acquire lock for order processing.");
+                throw new RuntimeException("주문 처리를 위한 락을 획득하는데 실패했습니다.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Failed to acquire lock due to interruption.", e);
+            throw new RuntimeException("인터럽션으로 인해 락을 획득하는데 실패했습니다.", e);
         } finally {
             lock.unlock();
         }

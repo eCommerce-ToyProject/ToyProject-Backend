@@ -5,7 +5,6 @@ import com.idrsys.toyprojectbackend.dto.GoodsItemDto;
 import com.idrsys.toyprojectbackend.dto.GoodsSearchDto;
 import com.idrsys.toyprojectbackend.entity.Goods;
 import com.idrsys.toyprojectbackend.entity.GoodsItem;
-import com.idrsys.toyprojectbackend.entity.QGoodsItem;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
 
     @Override
     public Page<GoodsSearchDto> goodsSearch(String values, Pageable pageable){
-        List<GoodsSearchDto> rs =jpaQueryFactory.select(
+        List<GoodsSearchDto> rs = jpaQueryFactory.select(
                 Projections.fields(GoodsSearchDto.class,
                         goods.gNo
                         ,goods.gName

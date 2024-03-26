@@ -24,7 +24,7 @@ public class OrdersDto {
     private String payMn;
     private Member member;
     private OrderStatusCode ord_status_cd;
-    private Delivery dNo;
+    private Delivery delivery;
     private List<OrderItemDto> orderItems;
 
 

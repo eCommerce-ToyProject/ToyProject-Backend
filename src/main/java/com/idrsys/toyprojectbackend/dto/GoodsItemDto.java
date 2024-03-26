@@ -22,13 +22,4 @@ public class GoodsItemDto {
     private Long iQty;
     private BigDecimal iAmtAdd;
     private Long iSaveQty;
-
-//    public GoodsItem toEntity() {
-//        return GoodsItem.builder()
-//                .no(no)
-//                .id(id)
-//                .username(username)
-//                .email(email)
-//                .phone(phone).build();
-//    }
 }

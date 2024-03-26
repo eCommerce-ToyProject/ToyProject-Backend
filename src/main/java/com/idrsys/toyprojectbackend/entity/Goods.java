@@ -39,10 +39,10 @@ public class Goods {
     @Column(name = "cat_cd")
     private Long cCd;
 
-    @OneToMany(mappedBy = "goods", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "goods",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GoodsItem> goodsItem = new ArrayList<>();
 
-    @OneToMany(mappedBy = "goods_no")
+    @OneToMany(mappedBy = "goods_no",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
 }

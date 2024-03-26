@@ -40,10 +40,10 @@ public class Member implements UserDetails {
     @Column(name = "mem_phone", nullable = false)
     private String phone;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Delivery> deliveryList;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Orders> orders;
 
     @ElementCollection(fetch = FetchType.EAGER)

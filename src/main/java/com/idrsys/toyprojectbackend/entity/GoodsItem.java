@@ -41,10 +41,10 @@ public class GoodsItem {
     @Column(name = "item_save_qty", nullable = false)
     private Long iSaveQty;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "goods_no")
     private Goods goods;
 
-    @OneToMany(mappedBy = "item_no")
+    @OneToMany(mappedBy = "item_no",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 }
