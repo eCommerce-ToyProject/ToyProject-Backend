@@ -1,6 +1,8 @@
 package com.idrsys.toyprojectbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,8 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @Entity
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Table(name = "order_item")
 public class OrderItem {
 
@@ -34,4 +38,6 @@ public class OrderItem {
     @JoinColumn(name = "item_no")
     private GoodsItem item_no;
 
+//    public Object toBuilder() {
+//    }
 }

@@ -44,10 +44,10 @@ public class Member implements UserDetails {
     private List<Delivery> deliveryList;
 
     @OneToMany(mappedBy = "member")
-    private List<Orders> orders = new ArrayList<>();
+    private List<Orders> orders;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

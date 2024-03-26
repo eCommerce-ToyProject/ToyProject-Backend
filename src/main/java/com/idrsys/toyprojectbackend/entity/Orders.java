@@ -1,6 +1,8 @@
 package com.idrsys.toyprojectbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +13,9 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "orders")
 public class Orders {
 
@@ -41,6 +45,6 @@ public class Orders {
     private Delivery delivery;
 
     @OneToMany(mappedBy = "ord_no")
-    private List<OrderItem> orderItems = new ArrayList<>();
+    private List<OrderItem> orderItems;
 
 }

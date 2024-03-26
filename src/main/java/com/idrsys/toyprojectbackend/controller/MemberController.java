@@ -8,8 +8,8 @@ import com.idrsys.toyprojectbackend.dto.SignUpDto;
 import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.service.MemberService;
 import com.idrsys.toyprojectbackend.util.SecurityUtil;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+//import io.swagger.v3.oas.annotations.Operation;
+//import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Tag(name = "회원", description = "회원 관련 api 입니다.")
+//@Tag(name = "회원", description = "회원 관련 api 입니다.")
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "sign in - 로그인", description = "")
+//    @Operation(summary = "sign in - 로그인", description = "")
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody SignInDto signInDto) {
         String id = signInDto.getId();
@@ -46,7 +46,7 @@ public class MemberController {
         return jwtToken;
     }
 
-    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
+//    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
     @PostMapping("/loginCheck")
 //    public List<String> loginCheck() {
     public String loginCheck(HttpServletRequest request) {
@@ -54,14 +54,14 @@ public class MemberController {
         return id;
     }
 
-    @Operation(summary = "sign up - 회원가입", description = "")
+//    @Operation(summary = "sign up - 회원가입", description = "")
     @PostMapping("/sign-up")
     public ResponseEntity<MemberDto> signUp(@RequestBody SignUpDto signUpDto) {
         MemberDto savedMemberDto = memberService.signUp(signUpDto);
         return ResponseEntity.ok(savedMemberDto);
     }
 
-    @Operation(summary = "comfirm by id - 아이디 중복체크", description = "")
+//    @Operation(summary = "comfirm by id - 아이디 중복체크", description = "")
     @GetMapping("/id/exists")
     public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String id){
         return ResponseEntity.ok(memberService.checkIdDuplicate(id));

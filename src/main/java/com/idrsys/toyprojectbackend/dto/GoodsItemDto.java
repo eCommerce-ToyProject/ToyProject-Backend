@@ -1,8 +1,12 @@
 package com.idrsys.toyprojectbackend.dto;
 
 import com.idrsys.toyprojectbackend.entity.Goods;
+import com.idrsys.toyprojectbackend.entity.GoodsItem;
+import com.idrsys.toyprojectbackend.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Getter
 @ToString
@@ -16,7 +20,15 @@ public class GoodsItemDto {
     private String optVal1;
     private String optVal2;
     private Long iQty;
-    private Long iAmtAdd;
+    private BigDecimal iAmtAdd;
     private Long iSaveQty;
 
+//    public GoodsItem toEntity() {
+//        return GoodsItem.builder()
+//                .no(no)
+//                .id(id)
+//                .username(username)
+//                .email(email)
+//                .phone(phone).build();
+//    }
 }

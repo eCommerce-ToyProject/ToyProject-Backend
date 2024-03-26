@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/testDB
-    username: tester
-    password: test_pwd
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USER}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -14,4 +14,8 @@ spring:
       hibernate:
         format_sql: true
   jwt:
-    secret: 28fe382f413641197bd9b1aad60c9ade78fbeefec7910e7b9fec215f00b2d4c5
+    secret: ${JWT_SECRET_KEY}
+  data:
+    redis:
+      host: ${REDIS_SERVER_HOST}
+      port: ${REDIS_SERVER_PORT}

@@ -34,7 +34,7 @@ public class SignUpDto {
     @NotBlank(message = "전화번호는 필수항목 입니다.")
     private String phone;
 
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles;
 
     public Member toEntity(String encodedPassword, List<String> roles) {
 
