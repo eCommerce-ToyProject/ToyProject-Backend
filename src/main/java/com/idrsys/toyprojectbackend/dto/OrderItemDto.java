@@ -20,8 +20,9 @@ public class OrderItemDto {
     private Long ordItemCd;
     private Long ordQty;
     private BigDecimal ordPrc;
-    private Orders ord_no;
-    private Goods goods_no;
-    private GoodsItem item_no;
+    private GoodsSearchDto goods_no;
+    private GoodsItemDto item_no;
+
+
 
 }

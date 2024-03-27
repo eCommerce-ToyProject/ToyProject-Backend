@@ -1,11 +1,10 @@
 package com.idrsys.toyprojectbackend.controller;
 
 import com.idrsys.toyprojectbackend.config.jwt.JwtTokenProvider;
-import com.idrsys.toyprojectbackend.dto.JwtToken;
-import com.idrsys.toyprojectbackend.dto.MemberDto;
-import com.idrsys.toyprojectbackend.dto.SignInDto;
-import com.idrsys.toyprojectbackend.dto.SignUpDto;
+import com.idrsys.toyprojectbackend.dto.*;
 import com.idrsys.toyprojectbackend.entity.Member;
+import com.idrsys.toyprojectbackend.repository.MemberRepository;
+import com.idrsys.toyprojectbackend.repository.MemberRepositoryCustom;
 import com.idrsys.toyprojectbackend.service.MemberService;
 import com.idrsys.toyprojectbackend.util.SecurityUtil;
 //import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +13,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,6 +34,12 @@ public class MemberController {
     private JwtTokenProvider jwtTokenProvider;
 
     private final MemberService memberService;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberRepositoryCustom memberRepositoryCustom;
 
 //    @Operation(summary = "sign in - 로그인", description = "")
     @PostMapping("/sign-in")
@@ -65,6 +71,11 @@ public class MemberController {
     @GetMapping("/id/exists")
     public ResponseEntity<Boolean> checkIdDuplicate(@RequestParam String id){
         return ResponseEntity.ok(memberService.checkIdDuplicate(id));
+    }
+
+    @GetMapping("/my-info")
+    public List<MemberOrderDto> myInfo(@RequestParam String id){
+        return memberRepositoryCustom.memberOrdering(id);
     }
 
 }

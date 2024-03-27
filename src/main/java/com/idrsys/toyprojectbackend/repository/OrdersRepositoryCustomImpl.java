@@ -1,13 +1,7 @@
 package com.idrsys.toyprojectbackend.repository;
 
-import com.idrsys.toyprojectbackend.dto.GoodsDto;
-import com.idrsys.toyprojectbackend.dto.GoodsItemDto;
-import com.idrsys.toyprojectbackend.dto.OrderItemDto;
-import com.idrsys.toyprojectbackend.dto.OrdersDto;
-import com.idrsys.toyprojectbackend.entity.Goods;
-import com.idrsys.toyprojectbackend.entity.GoodsItem;
-import com.idrsys.toyprojectbackend.entity.OrderItem;
-import com.idrsys.toyprojectbackend.entity.Orders;
+import com.idrsys.toyprojectbackend.dto.*;
+import com.idrsys.toyprojectbackend.entity.*;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +21,7 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<OrdersDto> orders(Long id, Pageable pageable) {
+    public Page<SearchOrderDto> orders(Long id, Pageable pageable) {
         List<Orders> ordersDtoList = jpaQueryFactory.select(orders)
                 .from(orders)
                 .where(orders.member.no.eq(id))
@@ -35,27 +29,25 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Page<OrdersDto> PageImpl = new PageImpl<>(mapToGoodsDtoList(ordersDtoList), pageable, mapToGoodsDtoList(ordersDtoList).size());
+        Page<SearchOrderDto> PageImpl = new PageImpl<>(mapToSearchOrderDtoDtoList(ordersDtoList), pageable, mapToSearchOrderDtoDtoList(ordersDtoList).size());
         return PageImpl;
     }
 
-    private List<OrdersDto> mapToGoodsDtoList(List<Orders> ordersList) {
+    private List<SearchOrderDto> mapToSearchOrderDtoDtoList(List<Orders> ordersList) {
         return ordersList.stream()
                 .map(this::mapToOrdersDto)
                 .collect(Collectors.toList());
     }
 
-    
+
     // 현재 여기 member와 delivery에서 순환참조 일어나는 중
-    private OrdersDto mapToOrdersDto(Orders orders) {
-        return new OrdersDto(
+    private SearchOrderDto mapToOrdersDto(Orders orders) {
+        return new SearchOrderDto(
                 orders.getOrdNo(),
                 orders.getOrdDt(),
                 orders.getToPrc(),
                 orders.getPayMn(),
-                orders.getMember(),
-                orders.getOrd_status_cd(),
-                orders.getDelivery(),
+                mapToOrderStatusCodeDto(orders.getOrd_status_cd()),
                 mapToOrderItemDto(orders.getOrderItems())
         );
     }
@@ -66,10 +58,37 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                         orderItem.getOrdItemCd(),
                         orderItem.getOrdQty(),
                         orderItem.getOrdPrc(),
-                        orderItem.getOrd_no(),
-                        orderItem.getGoods_no(),
-                        orderItem.getItem_no()
+                        mapToGoodsSearchDto(orderItem.getGoods_no()),
+                        mapToDeliveryDto(orderItem.getItem_no())
                 ))
                 .collect(Collectors.toList());
     }
+
+    private GoodsSearchDto mapToGoodsSearchDto(Goods goods) {
+        return new GoodsSearchDto(
+                goods.getGNo(),
+                goods.getGName(),
+                goods.getBNo(),
+                goods.getGPrice(),
+                goods.getGImg(),
+                goods.getOpt1(),
+                goods.getOpt2(),
+                goods.getCCd()
+        );
+    }
+    private GoodsItemDto mapToDeliveryDto(GoodsItem goodsItem) {
+        return new GoodsItemDto(
+                goodsItem.getNo(),
+                goodsItem.getName(),
+                goodsItem.getOptVal1(),
+                goodsItem.getOptVal2()
+        );
+    }
+    private OrderStatusCodeDto mapToOrderStatusCodeDto(OrderStatusCode orderStatusCode) {
+        return new OrderStatusCodeDto(
+                orderStatusCode.getOrdCd(),
+                orderStatusCode.getOrdDef()
+        );
+    }
+
 }

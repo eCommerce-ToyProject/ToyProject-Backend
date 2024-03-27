@@ -19,4 +19,12 @@ public class DeliveryDto {
     private String zCode;
     private String detailAddress;
     private String designation;
+
+    public DeliveryDto(Long delNo, String delPlc, String zCode, String detailAddress, String designation) {
+        this.delNo = delNo;
+        this.delPlc = delPlc;
+        this.zCode = zCode;
+        this.detailAddress = detailAddress;
+        this.designation = designation;
+    }
 }

@@ -22,4 +22,12 @@ public class GoodsItemDto {
     private Long iQty;
     private BigDecimal iAmtAdd;
     private Long iSaveQty;
+
+
+    public GoodsItemDto(Long no, String name, String optVal1, String optVal2) {
+        this.no = no;
+        this.name = name;
+        this.optVal1 = optVal1;
+        this.optVal2 = optVal2;
+    }
 }

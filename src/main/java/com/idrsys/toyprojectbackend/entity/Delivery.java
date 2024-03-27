@@ -1,6 +1,8 @@
 package com.idrsys.toyprojectbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,8 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "delivery")
 public class Delivery {

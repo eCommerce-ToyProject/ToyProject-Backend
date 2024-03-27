@@ -1,30 +1,25 @@
 package com.idrsys.toyprojectbackend.dto;
 
-import com.idrsys.toyprojectbackend.entity.Delivery;
-import com.idrsys.toyprojectbackend.entity.Member;
-import com.idrsys.toyprojectbackend.entity.OrderItem;
 import com.idrsys.toyprojectbackend.entity.OrderStatusCode;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @Getter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 @Setter
-public class OrdersDto {
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SearchOrderDto {
 
     private Long ordNo;
     private Date ordDt;
     private BigDecimal toPrc;
     private String payMn;
-    private Member member;
-    private OrderStatusCode ord_status_cd;
-    private Delivery delivery;
+    private OrderStatusCodeDto ordStatusCd;
     private List<OrderItemDto> orderItems;
 
 }
