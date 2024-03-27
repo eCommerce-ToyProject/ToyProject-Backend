@@ -38,11 +38,12 @@ public class CreateOrderWithDistributedLock {
 
     // 트랜잭션이 커밋 후 락 해제
     // 커밋 전에 해제 시 갱신손실 발생 및 데드락 발생 위험
+    // 추후 AOP 방식으로 재구성
     public Orders createOrder(AddOrdersDto addOrdersDto) {
         String orderLockKey = ORDER_LOCK_PREFIX + addOrdersDto.getMemberId() + addOrdersDto.getOptVal1() +addOrdersDto.getOptVal2(); /*order.getOrdNo();*/
         RLock lock = redisson.getLock(orderLockKey);
         try {
-            boolean isLocked = lock.tryLock(20, LOCK_TIMEOUT, TimeUnit.SECONDS);
+            boolean isLocked = lock.tryLock(10, LOCK_TIMEOUT, TimeUnit.SECONDS);
             if (isLocked) {
                  return orderService.createOrder(addOrdersDto);
             } else {

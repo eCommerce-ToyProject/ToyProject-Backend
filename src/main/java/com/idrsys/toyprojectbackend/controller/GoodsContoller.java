@@ -45,8 +45,8 @@ public class GoodsContoller {
         return goodsRepositoryCustom.goodsSearch(values, pageable);
     }
     @GetMapping("/goodsList/goodsDetail")
-    public List<GoodsDto> goodsDetail(@RequestParam(name = "id",required = false) Long id) {
+    public List<GoodsDto> goodsDetail(@RequestParam(name = "no",required = false) Long no) {
 
-        return goodsRepositoryCustom.goodsDetail(id);
+        return goodsRepositoryCustom.goodsDetail(no);
     }
 }

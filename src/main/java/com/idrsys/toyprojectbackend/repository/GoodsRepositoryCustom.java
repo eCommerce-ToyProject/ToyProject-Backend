@@ -10,7 +10,7 @@ import java.util.List;
 public interface GoodsRepositoryCustom {
     Page<GoodsSearchDto> goodsSearch(String values, Pageable pageable);
 
-//    Page<GoodsDto> goodsDetail(Long id, Pageable pageable);
-
     List<GoodsDto> goodsDetail(Long id);
+
+//    List<GoodsDto> goodsDetailTest(Long id);
 }
