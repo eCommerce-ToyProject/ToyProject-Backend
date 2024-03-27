@@ -2,6 +2,7 @@ package com.idrsys.toyprojectbackend.controller;
 
 import com.idrsys.toyprojectbackend.dto.AddDeliveryDto;
 import com.idrsys.toyprojectbackend.dto.DeliveryDto;
+import com.idrsys.toyprojectbackend.dto.UpdateDeliveryDto;
 import com.idrsys.toyprojectbackend.entity.Delivery;
 import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.repository.DeliveryRepositoryCustom;
@@ -34,14 +35,17 @@ public class DeliveryController {
     @GetMapping("/deliveryList")
     public Page<DeliveryDto> delivery(@RequestParam(name = "id", required = false) String id,
                                    Pageable pageable) {
-
-
         return deliveryRepositoryCustom.deliverySearch(id, pageable);
     }
 
     @PostMapping("/createDelivery")
-    public boolean CreateDelivery(@RequestBody AddDeliveryDto addDeliveryDto){
-        return deliveryService.CreateDelivery(addDeliveryDto);
+    public boolean createDelivery(@RequestBody AddDeliveryDto addDeliveryDto){
+        return deliveryService.createDelivery(addDeliveryDto);
+    }
+
+    @PostMapping("/updateDelivery")
+    public boolean updateDelivery(@RequestBody UpdateDeliveryDto updateDeliveryDto){
+        return deliveryService.updateDelivery(updateDeliveryDto);
     }
 
 }
