@@ -21,10 +21,10 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<SearchOrderDto> orders(Long id, Pageable pageable) {
+    public Page<SearchOrderDto> orders(String id, Pageable pageable) {
         List<Orders> ordersDtoList = jpaQueryFactory.select(orders)
                 .from(orders)
-                .where(orders.member.no.eq(id))
+                .where(orders.member.id.contains(id))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

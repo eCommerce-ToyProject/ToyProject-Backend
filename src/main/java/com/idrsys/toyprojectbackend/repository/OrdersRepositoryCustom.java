@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrdersRepositoryCustom {
 
-    Page<SearchOrderDto> orders(Long id, Pageable pageable);
+    Page<SearchOrderDto> orders(String id, Pageable pageable);
 }

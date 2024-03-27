@@ -35,8 +35,8 @@ public class OrdersController {
         return createOrderWithDistributedLock.createOrder(addOrdersDto);
     }
     @GetMapping("/orderList")
-    public Page<SearchOrderDto> addOrder(@RequestParam(name = "no",required = false) Long no, Pageable pageable){
-        return ordersRepositoryCustom.orders(no,pageable);
+    public Page<SearchOrderDto> addOrder(@RequestParam(name = "id",required = false) String id, Pageable pageable){
+        return ordersRepositoryCustom.orders(id,pageable);
     }
 
 
