@@ -29,7 +29,7 @@ public class Delivery {
     private Member member;
 
     @Column(name = "zip_code", nullable = false)
-    private String zCode;
+    private String zipCode;
 
     @Column(name = "detailed address", nullable = false)
     private String detailAddress;

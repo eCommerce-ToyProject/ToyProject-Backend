@@ -15,5 +15,8 @@ public class AddOrdersDto {
     private String optVal2;
     private Long quantity;
     private String paymn;
-    private Long delNo;
+    private String delPlc;
+    private String zipCode;
+    private String detailAddress;
+    private String designation;
 }

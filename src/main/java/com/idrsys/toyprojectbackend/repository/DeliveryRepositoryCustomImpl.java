@@ -66,7 +66,7 @@ public class DeliveryRepositoryCustomImpl implements DeliveryRepositoryCustom{
                 delivery.getDelNo(),
                 delivery.getDelPlc(),
                 MemberDto.toDto(delivery.getMember()),
-                delivery.getZCode(),
+                delivery.getZipCode(),
                 delivery.getDetailAddress(),
                 delivery.getDesignation()
         );

@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
+@Builder
 public class AddDeliveryDto {
 
     private String delPlc;

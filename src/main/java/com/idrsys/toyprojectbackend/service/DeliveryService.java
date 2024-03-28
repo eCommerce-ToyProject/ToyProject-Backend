@@ -31,7 +31,7 @@ public class DeliveryService {
         Delivery delivery = Delivery.builder()
                 .delPlc(addDeliveryDto.getDelPlc())
                 .member(member)
-                .zCode(addDeliveryDto.getZipCode())
+                .zipCode(addDeliveryDto.getZipCode())
                 .detailAddress(addDeliveryDto.getDetailAddress())
                 .designation(addDeliveryDto.getDesignation())
                 .build();
@@ -55,7 +55,7 @@ public class DeliveryService {
                 .delNo(updateDeliveryDto.getDelNo())
                 .delPlc(updateDeliveryDto.getDelPlc())
                 .member(delivery.getMember())
-                .zCode(updateDeliveryDto.getZipCode())
+                .zipCode(updateDeliveryDto.getZipCode())
                 .detailAddress(updateDeliveryDto.getDetailAddress())
                 .designation(updateDeliveryDto.getDesignation())
                 .build();

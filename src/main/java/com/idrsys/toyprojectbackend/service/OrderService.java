@@ -8,6 +8,7 @@ import com.idrsys.toyprojectbackend.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -49,8 +50,25 @@ public class OrderService {
         Member member = memberRepository.findById(addOrdersDto.getMemberId()).orElseThrow(IllegalAccessError::new);
         Goods goods = goodsRepository.findById(addOrdersDto.getGoodsId()).orElseThrow(IllegalAccessError::new);
         GoodsItem item = goodsItemRepository.findByOptVal1AndOptVal2(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
-        Delivery delivery = deliveryRepository.findById(addOrdersDto.getDelNo()).orElseThrow(IllegalAccessError::new);
+        Delivery delivery = deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(), addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
         OrderStatusCode statusCode = orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED").orElseThrow(IllegalAccessError::new);
+//        Delivery newDelivery;
+        if(delivery == null){
+            Delivery buildDelivery = Delivery.builder()
+                    .delPlc(addOrdersDto.getDelPlc())
+                    .member(member)
+                    .zipCode(addOrdersDto.getZipCode())
+                    .detailAddress(addOrdersDto.getDetailAddress())
+                    .designation(addOrdersDto.getDesignation())
+                    .build();
+
+            try{
+                delivery = deliveryRepository.save(buildDelivery);
+            }catch (DataAccessException e){
+                log.info("error : "+e);
+                return false;
+            }
+        }
 
         goodsItemService.updateQty(item, addOrdersDto.getQuantity());
 
