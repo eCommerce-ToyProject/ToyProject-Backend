@@ -47,11 +47,20 @@ public class OrderService {
     @Transactional
     public boolean createOrder(AddOrdersDto addOrdersDto) {
 
+        if(addOrdersDto.getOptVal2().isBlank()){
+            addOrdersDto.setOptVal2(null);
+        }
+
+        if(addOrdersDto.getOptVal1().isBlank()){
+            addOrdersDto.setOptVal1(null);
+        }
+
         Member member = memberRepository.findById(addOrdersDto.getMemberId()).orElseThrow(IllegalAccessError::new);
         Goods goods = goodsRepository.findById(addOrdersDto.getGoodsId()).orElseThrow(IllegalAccessError::new);
         GoodsItem item = goodsItemRepository.findByOptVal1AndOptVal2AndGoods(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2(), goods);
         Delivery delivery = deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(), addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
         OrderStatusCode statusCode = orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED").orElseThrow(IllegalAccessError::new);
+
 
         if(delivery == null){
             Delivery buildDelivery = Delivery.builder()
