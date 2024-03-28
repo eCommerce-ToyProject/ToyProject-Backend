@@ -6,6 +6,7 @@ import com.idrsys.toyprojectbackend.dto.OrdersDto;
 import com.idrsys.toyprojectbackend.entity.*;
 import com.idrsys.toyprojectbackend.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class OrderService {
 
@@ -42,7 +44,7 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
 
     @Transactional
-    public Orders createOrder(AddOrdersDto addOrdersDto) {
+    public boolean createOrder(AddOrdersDto addOrdersDto) {
 
         Member member = memberRepository.findById(addOrdersDto.getMemberId()).orElseThrow(IllegalAccessError::new);
         Goods goods = goodsRepository.findById(addOrdersDto.getGoodsId()).orElseThrow(IllegalAccessError::new);
@@ -71,8 +73,15 @@ public class OrderService {
                 .item_no(item)
                 .build();
 
-        Orders saveOrder = ordersRepository.save(orders);
-        orderItemRepository.save(orderItem);
-        return saveOrder;
+
+
+        try {
+            ordersRepository.save(orders);
+            orderItemRepository.save(orderItem);
+            return true;
+        }catch (Exception e){
+            log.info("error : "+e);
+            return false;
+        }
     }
 }

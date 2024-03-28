@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @Setter
 public class AddOrdersDto {
-    private Long memberId;
+    private String memberId;
     private Long goodsId;
     private String optVal1;
     private String optVal2;

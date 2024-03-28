@@ -31,7 +31,7 @@ public class OrdersController {
     private OrdersRepositoryCustom ordersRepositoryCustom;
 
     @PostMapping("/createOrder")
-    public Orders addOrder(@RequestBody AddOrdersDto addOrdersDto){
+    public boolean addOrder(@RequestBody AddOrdersDto addOrdersDto){
         return createOrderWithDistributedLock.createOrder(addOrdersDto);
     }
     @GetMapping("/myOrderList")
