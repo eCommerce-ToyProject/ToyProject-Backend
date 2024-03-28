@@ -40,6 +40,7 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                     .where(orders.member.id.contains(member.getId()))
                     .offset(pageable.getOffset())
                     .limit(pageable.getPageSize())
+                    .orderBy(orders.ordDt.desc())
                     .fetch();
         }
 
