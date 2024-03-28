@@ -49,10 +49,10 @@ public class OrderService {
 
         Member member = memberRepository.findById(addOrdersDto.getMemberId()).orElseThrow(IllegalAccessError::new);
         Goods goods = goodsRepository.findById(addOrdersDto.getGoodsId()).orElseThrow(IllegalAccessError::new);
-        GoodsItem item = goodsItemRepository.findByOptVal1AndOptVal2(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
+        GoodsItem item = goodsItemRepository.findByOptVal1AndOptVal2AndGoods(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2(), goods);
         Delivery delivery = deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(), addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
         OrderStatusCode statusCode = orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED").orElseThrow(IllegalAccessError::new);
-//        Delivery newDelivery;
+
         if(delivery == null){
             Delivery buildDelivery = Delivery.builder()
                     .delPlc(addOrdersDto.getDelPlc())

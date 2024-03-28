@@ -50,13 +50,13 @@ public class GoodsContoller {
         return goodsRepositoryCustom.goodsDetail(no);
     }
 
-    @GetMapping("/goodsList/goodsOrder")
-    public List<GoodsItem> goodsOrder(@RequestParam(name = "no",required = false) Long no,
-                                      @RequestParam(name = "optVal1",required = false) String optVal1,
-                                      @RequestParam(name = "optVal2",required = false) String optVal2) {
-
-        Goods goods = goodsRepository.findById(no).orElseThrow(IllegalArgumentException::new);
-
-        return goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods);
-    }
+//    @GetMapping("/goodsList/goodsOrder")
+//    public List<GoodsItem> goodsOrder(@RequestParam(name = "no",required = false) Long no,
+//                                      @RequestParam(name = "optVal1",required = false) String optVal1,
+//                                      @RequestParam(name = "optVal2",required = false) String optVal2) {
+//
+//        Goods goods = goodsRepository.findById(no).orElseThrow(IllegalArgumentException::new);
+//
+//        return goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods);
+//    }
 }

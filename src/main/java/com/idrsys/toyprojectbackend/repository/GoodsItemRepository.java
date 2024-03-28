@@ -10,7 +10,7 @@ public interface GoodsItemRepository extends JpaRepository<GoodsItem, Long> {
 
     GoodsItem findByOptVal1AndOptVal2(String optVal1, String optVal2);
 
-    List<GoodsItem> findByOptVal1AndOptVal2AndGoods(String optVal1, String optVal2, Goods goods);
+    GoodsItem findByOptVal1AndOptVal2AndGoods(String optVal1, String optVal2, Goods goods);
 
 
 //    GoodsItem updateGoodsItemByNo
