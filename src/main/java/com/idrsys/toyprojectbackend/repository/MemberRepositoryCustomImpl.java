@@ -23,8 +23,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                         ,member.id
                         ,member.username
                         ,member.email
-                        ,member.phone
-                        ,member.deliveryList))
+                        ,member.phone))
                 .from(member)
                 .where(member.id.contains(id))
                 .fetch();

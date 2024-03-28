@@ -54,7 +54,6 @@ public class MemberController {
 
 //    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
     @PostMapping("/loginCheck")
-//    public List<String> loginCheck() {
     public String loginCheck(HttpServletRequest request) {
         String id = SecurityUtil.getCurrentMemberId();
         return id;
@@ -74,7 +73,7 @@ public class MemberController {
     }
 
     @GetMapping("/orderingMyinfo")
-    public List<MemberDto> myInfo(@RequestParam String id){
+    public List<MemberDto> myInfo(@RequestParam(name = "id") String id){
         return memberRepositoryCustom.memberOrdering(id);
     }
 
