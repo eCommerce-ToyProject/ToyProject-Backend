@@ -73,8 +73,8 @@ public class MemberController {
         return ResponseEntity.ok(memberService.checkIdDuplicate(id));
     }
 
-    @GetMapping("/my-info")
-    public List<MemberOrderDto> myInfo(@RequestParam String id){
+    @GetMapping("/orderingMyinfo")
+    public List<MemberDto> myInfo(@RequestParam String id){
         return memberRepositoryCustom.memberOrdering(id);
     }
 

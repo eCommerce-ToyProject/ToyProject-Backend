@@ -34,10 +34,13 @@ public class OrdersController {
     public Orders addOrder(@RequestBody AddOrdersDto addOrdersDto){
         return createOrderWithDistributedLock.createOrder(addOrdersDto);
     }
-    @GetMapping("/orderList")
+    @GetMapping("/myOrderList")
     public Page<SearchOrderDto> addOrder(@RequestParam(name = "id",required = false) String id, Pageable pageable){
-        return ordersRepositoryCustom.orders(id,pageable);
+        return ordersRepositoryCustom.ordersList(id,pageable);
     }
+
+//    @GetMapping("/ordering")
+//    public List<>
 
 
 }

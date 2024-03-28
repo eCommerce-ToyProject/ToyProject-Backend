@@ -1,6 +1,6 @@
 package com.idrsys.toyprojectbackend.repository;
 
-import com.idrsys.toyprojectbackend.dto.MemberOrderDto;
+import com.idrsys.toyprojectbackend.dto.MemberDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,9 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<MemberOrderDto> memberOrdering(String id){
-        List<MemberOrderDto> rs = jpaQueryFactory.select(
-                Projections.fields(MemberOrderDto.class,
+    public List<MemberDto> memberOrdering(String id){
+        List<MemberDto> rs = jpaQueryFactory.select(
+                Projections.fields(MemberDto.class,
                         member.no
                         ,member.id
                         ,member.username
@@ -26,6 +26,7 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                         ,member.phone
                         ,member.deliveryList))
                 .from(member)
+                .where(member.id.contains(id))
                 .fetch();
         return rs;
     }

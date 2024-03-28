@@ -20,8 +20,10 @@ import static com.idrsys.toyprojectbackend.entity.QOrders.orders;
 public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
+
+
     @Override
-    public Page<SearchOrderDto> orders(String id, Pageable pageable) {
+    public Page<SearchOrderDto> ordersList(String id, Pageable pageable) {
         List<Orders> ordersDtoList = jpaQueryFactory.select(orders)
                 .from(orders)
                 .where(orders.member.id.contains(id))
