@@ -5,6 +5,8 @@ import com.idrsys.toyprojectbackend.entity.*;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
@@ -15,21 +17,33 @@ import java.util.stream.Collectors;
 
 import static com.idrsys.toyprojectbackend.entity.QOrders.orders;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
-
+    @Autowired
+    private MemberRepository memberRepository;
 
     @Override
     public Page<SearchOrderDto> ordersList(String id, Pageable pageable) {
-        List<Orders> ordersDtoList = jpaQueryFactory.select(orders)
-                .from(orders)
-                .where(orders.member.id.contains(id))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        Member member = memberRepository.findById(id).orElse(null);
+
+        List<Orders> ordersDtoList;
+
+        if(member == null){
+            return null;
+        }else{
+            ordersDtoList = jpaQueryFactory.select(orders)
+                    .from(orders)
+                    .where(orders.member.id.contains(member.getId()))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .fetch();
+        }
+
+
 
         Page<SearchOrderDto> PageImpl = new PageImpl<>(mapToSearchOrderDtoDtoList(ordersDtoList), pageable, mapToSearchOrderDtoDtoList(ordersDtoList).size());
         return PageImpl;
