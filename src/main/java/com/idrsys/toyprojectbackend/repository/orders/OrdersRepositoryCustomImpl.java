@@ -7,6 +7,9 @@ import com.idrsys.toyprojectbackend.dto.orders.OrderStatusCodeDto;
 import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
 import com.idrsys.toyprojectbackend.entity.*;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.idrsys.toyprojectbackend.entity.QOrderItem.orderItem;
 import static com.idrsys.toyprojectbackend.entity.QOrders.orders;
 
 @Slf4j
@@ -66,8 +70,8 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                 orders.getOrdDt(),
                 orders.getToPrc(),
                 orders.getPayMn(),
-                mapToOrderStatusCodeDto(orders.getOrd_status_cd()),
-                mapToOrderItemDto(orders.getOrderItems())
+                orders.getOrd_status_cd(),
+                orders.getOrderItems()
         );
     }
 
@@ -103,25 +107,33 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                 goodsItem.getOptVal2()
         );
     }
-    private OrderStatusCodeDto mapToOrderStatusCodeDto(OrderStatusCode orderStatusCode) {
-        return new OrderStatusCodeDto(
-                orderStatusCode.getOrdCd(),
-                orderStatusCode.getOrdDef()
-        );
-    }
+//    private OrderStatusCodeDto mapToOrderStatusCodeDto(OrderStatusCode orderStatusCode) {
+//        return new OrderStatusCodeDto(
+//                orderStatusCode.getOrdCd(),
+//                orderStatusCode.getOrdDef()
+//        );
+//    }
 
     @Override
-    public Page<Orders> ordersPage(String id, Pageable pageable) {
+    public Page<SearchOrderDto> ordersPage(String id, Pageable pageable){
         Member member = memberRepository.findById(id).orElse(null);
 
-        List<Orders> ordersList;
+        List<SearchOrderDto> ordersList;
 
         if(member == null){
             return null;
         }else{
+
             ordersList = jpaQueryFactory.select(
-                    orders
-                    )
+                    Projections.fields(SearchOrderDto.class,
+                            orders.ordNo
+                            ,orders.ordDt
+                            ,orders.toPrc
+                            ,orders.payMn
+                            ,orders.ord_status_cd
+                            , ExpressionUtils.as(
+                                    Projections.list(orders.orderItems), "orderItem")
+                            ))
                     .from(orders)
                     .where(orders.member.id.contains(member.getId()))
                     .offset(pageable.getOffset())

@@ -3,9 +3,12 @@ package com.idrsys.toyprojectbackend.repository.goods;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsDto;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsItemDto;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsSearchDto;
+import com.idrsys.toyprojectbackend.dto.goods.GoodsTotQtyDto;
 import com.idrsys.toyprojectbackend.entity.Goods;
 import com.idrsys.toyprojectbackend.entity.GoodsItem;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +43,12 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
                         ,category.cName
                         ,goods.opt1
                         ,goods.opt2
-                        ,goods.gPrice))
+                        ,goods.gPrice
+                        , Expressions.as(JPAExpressions
+                                .select(goodsItem.iQty.add(goodsItem.iSaveQty).sum())
+                                .from(goodsItem)
+                                .where(goodsItem.goods.eq(goods)), "TotQty")
+                ))
                 .from(goods)
                 .leftJoin(brand).on(goods.bNo.eq(brand.no))
                 .leftJoin(category).on(goods.cCd.eq(category.cd))
@@ -55,7 +63,6 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
     }
     @Override
     public List<GoodsDto> goodsDetail(Long id){
-
 
         List<Goods> goodsList = jpaQueryFactory
                 .select(goods)
@@ -101,5 +108,10 @@ public class GoodsRepositoryCustomImpl implements GoodsRepositoryCustom {
                 ))
                 .collect(Collectors.toList());
     }
+
+//    @Override
+//    public List<GoodsTotQtyDto> TotQty(Long no){
+//        return null;
+//    }
 
 }

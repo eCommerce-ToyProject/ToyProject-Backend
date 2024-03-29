@@ -9,7 +9,7 @@ public interface OrdersRepositoryCustom {
 
     Page<SearchOrderDto> ordersList(String id, Pageable pageable);
 
-    Page<Orders> ordersPage(String id, Pageable pageable);
+    Page<SearchOrderDto> ordersPage(String id, Pageable pageable);
 
 //    Page<TestOrderDto> ordersList(String id, Pageable pageable);
 }

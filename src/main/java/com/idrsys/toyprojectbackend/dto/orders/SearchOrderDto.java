@@ -2,6 +2,8 @@ package com.idrsys.toyprojectbackend.dto.orders;
 
 import com.idrsys.toyprojectbackend.dto.orders.OrderItemDto;
 import com.idrsys.toyprojectbackend.dto.orders.OrderStatusCodeDto;
+import com.idrsys.toyprojectbackend.entity.OrderItem;
+import com.idrsys.toyprojectbackend.entity.OrderStatusCode;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -20,7 +22,7 @@ public class SearchOrderDto {
     private Date ordDt;
     private BigDecimal toPrc;
     private String payMn;
-    private OrderStatusCodeDto ordStatusCd;
-    private List<OrderItemDto> orderItems;
+    private OrderStatusCode ord_status_cd;
+    private List<OrderItem> orderItem;
 
 }

@@ -27,6 +27,7 @@ public class GoodsSearchDto {
     private String opt1;
     private String opt2;
     private Long cCd;
+    private Long TotQty;
 
 
     public GoodsSearchDto(Long gNo, String gName, Long bNo, BigDecimal gPrice, String gImg, String opt1, String opt2, Long cCd) {
