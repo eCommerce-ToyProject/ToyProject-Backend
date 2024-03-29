@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor
 @Table(name = "member")
+@JsonIgnoreProperties({"orders", "deliveryList"})
 public class Member implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,9 +53,6 @@ public class Member implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return memberRoles.stream()
-//                .map(SimpleGrantedAuthority::new)
-//                .collect(Collectors.toList());
 
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)

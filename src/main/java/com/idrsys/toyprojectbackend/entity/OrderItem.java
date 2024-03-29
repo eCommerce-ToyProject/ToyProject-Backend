@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @Table(name = "order_item")
+@JsonIgnoreProperties({"ord_no"})
 public class OrderItem {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

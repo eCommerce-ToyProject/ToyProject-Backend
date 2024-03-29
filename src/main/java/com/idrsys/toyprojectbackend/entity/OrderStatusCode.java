@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "order_status_code")
+@JsonIgnoreProperties({"orders"})
+
 public class OrderStatusCode {
 
     @Id

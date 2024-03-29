@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "goods")
+@JsonIgnoreProperties({"orderItems"})
 public class Goods {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

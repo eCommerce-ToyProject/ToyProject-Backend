@@ -1,10 +1,14 @@
 package com.idrsys.toyprojectbackend.service;
 
-import com.idrsys.toyprojectbackend.dto.AddOrdersDto;
-import com.idrsys.toyprojectbackend.dto.OrderItemDto;
-import com.idrsys.toyprojectbackend.dto.OrdersDto;
+import com.idrsys.toyprojectbackend.dto.orders.AddOrdersDto;
 import com.idrsys.toyprojectbackend.entity.*;
-import com.idrsys.toyprojectbackend.repository.*;
+import com.idrsys.toyprojectbackend.repository.delivery.DeliveryRepository;
+import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
+import com.idrsys.toyprojectbackend.repository.goods.GoodsRepository;
+import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
+import com.idrsys.toyprojectbackend.repository.orders.OrderItemRepository;
+import com.idrsys.toyprojectbackend.repository.orders.OrderStatusCodeRepository;
+import com.idrsys.toyprojectbackend.repository.orders.OrdersRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +16,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Slf4j
 @Service

@@ -2,20 +2,17 @@ package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.config.jwt.JwtTokenProvider;
 import com.idrsys.toyprojectbackend.dto.JwtToken;
-import com.idrsys.toyprojectbackend.dto.MemberDto;
-import com.idrsys.toyprojectbackend.dto.SignUpDto;
+import com.idrsys.toyprojectbackend.dto.member.MemberDto;
+import com.idrsys.toyprojectbackend.dto.member.SignUpDto;
 import com.idrsys.toyprojectbackend.entity.Member;
-import com.idrsys.toyprojectbackend.repository.MemberRepository;
+import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.util.ArrayList;
 import java.util.List;

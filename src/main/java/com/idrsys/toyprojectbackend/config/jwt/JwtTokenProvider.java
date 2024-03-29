@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final SecretKey key;
 
+    @Value("${spring.jwt.secret}")
+    private String secretKey;
+
     public JwtTokenProvider(@Value("${spring.jwt.secret}") String secretKey){
         byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
@@ -58,6 +61,17 @@ public class JwtTokenProvider {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+
+
+    public String generateAccessToken(String refreshToken) {
+        // Refresh Token에서 username 추출
+        String username = Jwts.parser().verifyWith(key).build().parseClaimsJws(refreshToken).getBody().getSubject();
+
+        // 새로운 Access Token 생성
+        UserDetails userDetails = User.builder().username(username).build();
+        return generateToken(new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities())).getAccessToken();
     }
 
     // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드

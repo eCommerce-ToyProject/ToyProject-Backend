@@ -1,8 +1,7 @@
 package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.entity.GoodsItem;
-import com.idrsys.toyprojectbackend.repository.GoodsItemRepository;
-import lombok.Builder;
+import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

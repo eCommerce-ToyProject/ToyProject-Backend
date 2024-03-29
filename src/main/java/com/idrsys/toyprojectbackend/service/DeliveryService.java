@@ -1,12 +1,11 @@
 package com.idrsys.toyprojectbackend.service;
 
-import com.idrsys.toyprojectbackend.dto.AddDeliveryDto;
-import com.idrsys.toyprojectbackend.dto.DeliveryDto;
-import com.idrsys.toyprojectbackend.dto.UpdateDeliveryDto;
+import com.idrsys.toyprojectbackend.dto.delivery.AddDeliveryDto;
+import com.idrsys.toyprojectbackend.dto.delivery.UpdateDeliveryDto;
 import com.idrsys.toyprojectbackend.entity.Delivery;
 import com.idrsys.toyprojectbackend.entity.Member;
-import com.idrsys.toyprojectbackend.repository.DeliveryRepository;
-import com.idrsys.toyprojectbackend.repository.MemberRepository;
+import com.idrsys.toyprojectbackend.repository.delivery.DeliveryRepository;
+import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

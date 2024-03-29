@@ -1,7 +1,7 @@
 package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.entity.Member;
-import com.idrsys.toyprojectbackend.repository.MemberRepository;
+import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
