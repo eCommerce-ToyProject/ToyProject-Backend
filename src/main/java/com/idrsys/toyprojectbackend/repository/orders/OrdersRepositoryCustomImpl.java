@@ -71,7 +71,8 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
                 orders.getToPrc(),
                 orders.getPayMn(),
                 orders.getOrd_status_cd(),
-                orders.getOrderItems()
+                orders.getOrderItems(),
+                orders.getDelivery()
         );
     }
 

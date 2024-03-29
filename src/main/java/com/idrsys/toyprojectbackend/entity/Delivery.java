@@ -16,7 +16,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "delivery")
-@JsonIgnoreProperties({"orders"})
+@JsonIgnoreProperties({"orders","member"})
 public class Delivery {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

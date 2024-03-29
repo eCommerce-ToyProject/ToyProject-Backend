@@ -2,6 +2,7 @@ package com.idrsys.toyprojectbackend.dto.orders;
 
 import com.idrsys.toyprojectbackend.dto.orders.OrderItemDto;
 import com.idrsys.toyprojectbackend.dto.orders.OrderStatusCodeDto;
+import com.idrsys.toyprojectbackend.entity.Delivery;
 import com.idrsys.toyprojectbackend.entity.OrderItem;
 import com.idrsys.toyprojectbackend.entity.OrderStatusCode;
 import lombok.*;
@@ -24,5 +25,6 @@ public class SearchOrderDto {
     private String payMn;
     private OrderStatusCode ord_status_cd;
     private List<OrderItem> orderItem;
+    private Delivery delivery;
 
 }
