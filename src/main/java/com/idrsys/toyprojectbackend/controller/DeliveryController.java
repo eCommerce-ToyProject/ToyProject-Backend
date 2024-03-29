@@ -43,7 +43,7 @@ public class DeliveryController {
         return deliveryService.createDelivery(addDeliveryDto);
     }
 
-    @PostMapping("/updateDelivery")
+    @PutMapping("/updateDelivery")
     public boolean updateDelivery(@RequestBody UpdateDeliveryDto updateDeliveryDto){
         return deliveryService.updateDelivery(updateDeliveryDto);
     }
