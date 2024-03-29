@@ -68,7 +68,8 @@ public class DeliveryRepositoryCustomImpl implements DeliveryRepositoryCustom{
                 MemberDto.toDto(delivery.getMember()),
                 delivery.getZipCode(),
                 delivery.getDetailAddress(),
-                delivery.getDesignation()
+                delivery.getDesignation(),
+                delivery.isDeleted()
         );
     }
 

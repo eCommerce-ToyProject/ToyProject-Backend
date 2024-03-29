@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "delivery")
+@JsonIgnoreProperties({"orders"})
 public class Delivery {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +41,7 @@ public class Delivery {
 
     @OneToMany(mappedBy = "delivery")
     private List<Orders> orders = new ArrayList<>();
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted;
 }

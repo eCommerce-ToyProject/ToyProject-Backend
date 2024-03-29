@@ -34,6 +34,7 @@ public class DeliveryService {
                 .zipCode(addDeliveryDto.getZipCode())
                 .detailAddress(addDeliveryDto.getDetailAddress())
                 .designation(addDeliveryDto.getDesignation())
+                .deleted(false)
                 .build();
         try{
             deliveryRepository.save(delivery);
@@ -58,7 +59,33 @@ public class DeliveryService {
                 .zipCode(updateDeliveryDto.getZipCode())
                 .detailAddress(updateDeliveryDto.getDetailAddress())
                 .designation(updateDeliveryDto.getDesignation())
+                .deleted(delivery.isDeleted())
                 .build();
+        try{
+            deliveryRepository.save(deliveryList);
+            return true;
+        }catch (DataAccessException e){
+            log.info("error : "+e);
+            return false;
+        }
+
+    }
+
+    @Transactional
+    public boolean deleteDelivery(Long delNo){
+
+        Delivery delivery = deliveryRepository.findById(delNo).orElseThrow(IllegalAccessError::new);
+
+        Delivery deliveryList = Delivery.builder()
+                .delNo(delivery.getDelNo())
+                .delPlc(delivery.getDelPlc())
+                .member(delivery.getMember())
+                .zipCode(delivery.getZipCode())
+                .detailAddress(delivery.getDetailAddress())
+                .designation(delivery.getDesignation())
+                .deleted(true)
+                .build();
+
         try{
             deliveryRepository.save(deliveryList);
             return true;

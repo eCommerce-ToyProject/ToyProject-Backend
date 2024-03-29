@@ -47,5 +47,12 @@ public class DeliveryController {
     public boolean updateDelivery(@RequestBody UpdateDeliveryDto updateDeliveryDto){
         return deliveryService.updateDelivery(updateDeliveryDto);
     }
+    @DeleteMapping("/deleteDelivery/{no}")
+    public boolean deleteDelivery(
+//            @RequestParam(name = "id", required = false) Long delNo
+            @PathVariable Long no
+    ){
+        return deliveryService.deleteDelivery(no);
+    }
 
 }
