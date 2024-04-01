@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,14 +16,15 @@ import java.util.List;
 @Entity
 @Builder
 @Table(name = "orders")
-public class Orders {
+public class
+Orders {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ord_no")
     private Long ordNo;
 
     @Column(name = "ord_dt", nullable = false)
-    private Date ordDt;
+    private LocalDateTime ordDt;
 
     @Column(name = "total_prc", nullable = false)
     private BigDecimal toPrc;

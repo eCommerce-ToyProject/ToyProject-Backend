@@ -3,13 +3,11 @@ package com.idrsys.toyprojectbackend.repository.orders;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsItemDto;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsSearchDto;
 import com.idrsys.toyprojectbackend.dto.orders.OrderItemDto;
-import com.idrsys.toyprojectbackend.dto.orders.OrderStatusCodeDto;
 import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
 import com.idrsys.toyprojectbackend.entity.*;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.idrsys.toyprojectbackend.entity.QOrderItem.orderItem;
 import static com.idrsys.toyprojectbackend.entity.QOrders.orders;
 
 @Slf4j
@@ -144,6 +141,14 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
 
 
         return new PageImpl<>(ordersList, pageable, ordersList.size());
+    }
+
+    @Override
+    public Long getMaxOrderNo(){
+        return jpaQueryFactory.select(
+                orders.ordNo.max())
+                .from(orders)
+                .fetchFirst() + 1L;
     }
 
 }

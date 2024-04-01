@@ -30,6 +30,13 @@ public class OrdersController {
 
     @PostMapping("/createOrder")
     public boolean addOrder(@RequestBody AddOrdersDto addOrdersDto){
+        if(addOrdersDto.getOptVal2().isBlank()){
+            addOrdersDto.setOptVal2(null);
+        }
+
+        if(addOrdersDto.getOptVal1().isBlank()) {
+            addOrdersDto.setOptVal1(null);
+        }
         return orderFacade.CreateOrderWithDistributedLock(addOrdersDto);
     }
     @GetMapping("/myOrderList")

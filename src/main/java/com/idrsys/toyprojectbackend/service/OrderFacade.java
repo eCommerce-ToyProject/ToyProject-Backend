@@ -2,7 +2,9 @@ package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.dto.orders.AddOrdersDto;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepository;
+import com.idrsys.toyprojectbackend.repository.orders.OrdersRepositoryCustom;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class OrderFacade {
 
@@ -23,7 +26,7 @@ public class OrderFacade {
     private static final long LOCK_TIMEOUT = 30;
 
     @Autowired
-    private OrdersRepository ordersRepository;
+    private OrdersRepositoryCustom ordersRepositoryCustom;
 
     @Autowired
     private OrderService orderService;
@@ -38,9 +41,9 @@ public class OrderFacade {
     // 트랜잭션이 커밋 후 락 해제
     // 커밋 전에 해제 시 갱신손실 발생 및 데드락 발생 위험
     // 추후 AOP 방식으로 재구성
-    @Transactional
+//    @Transactional
     public boolean CreateOrderWithDistributedLock(AddOrdersDto addOrdersDto) {
-        String orderLockKey = ORDER_LOCK_PREFIX + addOrdersDto.getMemberId() + addOrdersDto.getOptVal1() +addOrdersDto.getOptVal2(); /*order.getOrdNo();*/
+        String orderLockKey = ORDER_LOCK_PREFIX + ordersRepositoryCustom.getMaxOrderNo(); /*order.getOrdNo();*/
         RLock lock = redisson.getLock(orderLockKey);
         try {
             boolean isLocked = lock.tryLock(10, LOCK_TIMEOUT, TimeUnit.SECONDS);

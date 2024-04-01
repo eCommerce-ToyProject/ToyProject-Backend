@@ -11,5 +11,7 @@ public interface OrdersRepositoryCustom {
 
     Page<SearchOrderDto> ordersPage(String id, Pageable pageable);
 
+    Long getMaxOrderNo();
+
 //    Page<TestOrderDto> ordersList(String id, Pageable pageable);
 }

@@ -15,10 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Slf4j
 @Service
+@Transactional
 public class OrderService {
 
     @Autowired
@@ -45,71 +47,105 @@ public class OrderService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
-    @Transactional
+    @Transactional(rollbackOn = {Exception.class})
     public boolean createOrder(AddOrdersDto addOrdersDto) {
-
-        if(addOrdersDto.getOptVal2().isBlank()){
-            addOrdersDto.setOptVal2(null);
-        }
-
-        if(addOrdersDto.getOptVal1().isBlank()){
-            addOrdersDto.setOptVal1(null);
-        }
-
-        Member member = memberRepository.findById(addOrdersDto.getMemberId()).orElseThrow(IllegalAccessError::new);
-        Goods goods = goodsRepository.findById(addOrdersDto.getGoodsId()).orElseThrow(IllegalAccessError::new);
-        GoodsItem item = goodsItemRepository.findByOptVal1AndOptVal2AndGoods(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2(), goods);
-        Delivery delivery = deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(), addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
-        OrderStatusCode statusCode = orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED").orElseThrow(IllegalAccessError::new);
-
-
-        if(delivery == null){
-            Delivery buildDelivery = Delivery.builder()
-                    .delPlc(addOrdersDto.getDelPlc())
-                    .member(member)
-                    .zipCode(addOrdersDto.getZipCode())
-                    .detailAddress(addOrdersDto.getDetailAddress())
-                    .designation(addOrdersDto.getDesignation())
-                    .build();
-
-            try{
-                delivery = deliveryRepository.save(buildDelivery);
-            }catch (DataAccessException e){
-                log.info("error : "+e);
-                return false;
+        try {
+            Member member = getMemberById(addOrdersDto.getMemberId());
+            Goods goods = getGoodsById(addOrdersDto.getGoodsId());
+            GoodsItem item = getGoodsItemByOptions(goods, addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
+            Delivery delivery = getDelivery(addOrdersDto, member);
+            if(delivery == null){
+                delivery = createDelivery(addOrdersDto, member);
             }
+            OrderStatusCode statusCode = getOrderStatusCode();
+
+            updateGoodsItemQuantity(item, addOrdersDto.getQuantity());
+
+            BigDecimal totalPrice = calculateTotalPrice(goods, item, addOrdersDto.getQuantity());
+
+            Orders orders = buildOrders(member, delivery, statusCode, totalPrice, addOrdersDto.getPaymn());
+
+            OrderItem orderItem = buildOrderItem(orders, goods, item, totalPrice, addOrdersDto.getQuantity());
+
+            saveOrderAndOrderItem(orders, orderItem);
+
+            return true;
+        } catch (Exception e) {
+            log.error("Error while creating order: {}", e.getMessage());
+            return false;
         }
+    }
 
-        goodsItemService.updateQty(item, addOrdersDto.getQuantity());
+    private Member getMemberById(String memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException(memberId + " 아이디를 찾을 수 없습니다."));
+    }
 
-        BigDecimal totalPrice = goods.getGPrice().add(item.getIAmtAdd()).multiply(BigDecimal.valueOf(addOrdersDto.getQuantity()));
+    private Goods getGoodsById(Long goodsId) {
+        return goodsRepository.findById(goodsId)
+                .orElseThrow(() -> new IllegalArgumentException(goodsId + " 상품 아이디를 찾을 수 없습니다."));
+    }
 
-        Orders orders = Orders.builder()
-                .ordDt(new java.sql.Date(System.currentTimeMillis()))
+    private GoodsItem getGoodsItemByOptions(Goods goods, String optVal1, String optVal2) {
+        return goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods);
+    }
+
+    private Delivery getDelivery(AddOrdersDto addOrdersDto, Member member) {
+        return deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(
+                addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(),
+                addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
+    }
+
+    private Delivery createDelivery(AddOrdersDto addOrdersDto, Member member){
+        Delivery buildDelivery = Delivery.builder()
+                .delPlc(addOrdersDto.getDelPlc())
+                .member(member)
+                .zipCode(addOrdersDto.getZipCode())
+                .detailAddress(addOrdersDto.getDetailAddress())
+                .designation(addOrdersDto.getDesignation())
+                .build();
+
+        return deliveryRepository.save(buildDelivery);
+    }
+
+    private OrderStatusCode getOrderStatusCode() {
+        return orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED")
+                .orElseThrow(() -> new IllegalArgumentException("Order status code not found"));
+    }
+
+    private void updateGoodsItemQuantity(GoodsItem item, Long quantity) {
+        goodsItemService.updateQty(item, quantity);
+    }
+
+    private BigDecimal calculateTotalPrice(Goods goods, GoodsItem item, Long quantity) {
+        BigDecimal itemPrice = goods.getGPrice().add(item.getIAmtAdd());
+        return itemPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private Orders buildOrders(Member member, Delivery delivery, OrderStatusCode statusCode, BigDecimal totalPrice, String payMn) {
+        return Orders.builder()
+                .ordDt(LocalDateTime.now())
                 .toPrc(totalPrice)
-                .payMn(addOrdersDto.getPaymn())
+                .payMn(payMn)
                 .member(member)
                 .ord_status_cd(statusCode)
                 .delivery(delivery)
                 .build();
+    }
 
-        OrderItem orderItem = OrderItem.builder()
-                .ordQty(addOrdersDto.getQuantity())
+    private OrderItem buildOrderItem(Orders orders, Goods goods, GoodsItem item, BigDecimal totalPrice, Long quantity) {
+        return OrderItem.builder()
+                .ordQty(quantity)
                 .ordPrc(totalPrice)
                 .ord_no(orders)
                 .goods_no(goods)
                 .item_no(item)
                 .build();
-
-
-
-        try {
-            ordersRepository.save(orders);
-            orderItemRepository.save(orderItem);
-            return true;
-        }catch (Exception e){
-            log.info("error : "+e);
-            return false;
-        }
     }
+
+    private void saveOrderAndOrderItem(Orders orders, OrderItem orderItem) {
+        ordersRepository.save(orders);
+        orderItemRepository.save(orderItem);
+    }
+
 }

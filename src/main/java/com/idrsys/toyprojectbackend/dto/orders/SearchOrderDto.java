@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -20,7 +21,7 @@ import java.util.List;
 public class SearchOrderDto {
 
     private Long ordNo;
-    private Date ordDt;
+    private LocalDateTime ordDt;
     private BigDecimal toPrc;
     private String payMn;
     private OrderStatusCode ord_status_cd;
