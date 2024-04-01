@@ -103,6 +103,7 @@ public class OrderService {
                 .zipCode(addOrdersDto.getZipCode())
                 .detailAddress(addOrdersDto.getDetailAddress())
                 .designation(addOrdersDto.getDesignation())
+                .deleted(false)
                 .build();
 
         return deliveryRepository.save(buildDelivery);
