@@ -49,7 +49,7 @@ public class MemberController {
     }
 
 //    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
-    @PostMapping("/loginCheck")
+    @GetMapping("/loginCheck")
     public String loginCheck(HttpServletRequest request) {
         String id = SecurityUtil.getCurrentMemberId();
         return id;
