@@ -10,7 +10,7 @@ import lombok.*;
 @Setter
 public class DeliveryDto {
 
-    private Long delNo;
+    private Long dlivNo;
     private String delPlc;
     private MemberDto member;
     private String zCode;
@@ -18,8 +18,8 @@ public class DeliveryDto {
     private String designation;
     private boolean deleted;
 
-    public DeliveryDto(Long delNo, String delPlc, String zCode, String detailAddress, String designation, boolean deleted) {
-        this.delNo = delNo;
+    public DeliveryDto(Long dlivNo, String delPlc, String zCode, String detailAddress, String designation, boolean deleted) {
+        this.dlivNo = dlivNo;
         this.delPlc = delPlc;
         this.zCode = zCode;
         this.detailAddress = detailAddress;

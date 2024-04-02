@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 public class OrderDeliveryDto {
 
-    private Long delNo;
+    private Long dlivNo;
     private String delPlc;
     private String zCode;
     private String detailAddress;

@@ -59,7 +59,7 @@ Orders {
     private OrderStatusCode ord_status_cd;
 
     @ManyToOne
-    @JoinColumn(name = "del_no")
+    @JoinColumn(name = "dliv_no")
     private Delivery delivery;
 
     @OneToMany(mappedBy = "ord_no", fetch = FetchType.LAZY)
