@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,11 @@ import java.util.List;
 public class Delivery {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "del_no")
-    private Long delNo;
+    @Column(name = "dliv_no")
+    private Long dlivNo;
 
-    @Column(name = "del_plc", nullable = false)
-    private String delPlc;
+    @Column(name = "dliv_plc", nullable = false)
+    private String dlivPlc;
 
     @ManyToOne
     @JoinColumn(name = "mem_no")
@@ -39,9 +40,19 @@ public class Delivery {
     @Column(name = "designation")
     private String designation;
 
-    @OneToMany(mappedBy = "delivery")
-    private List<Orders> orders = new ArrayList<>();
+    @Column(name = "dliv_create_dt", nullable = false)
+    private LocalDateTime dlivCreateDate;
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted;
+
+    @Column(name = "dliv_deleted_dt")
+    private LocalDateTime dlivDeletedDt;
+
+    @Column(name = "dliv_change_dt")
+    private LocalDateTime dlivChangeDt;
+
+    @OneToMany(mappedBy = "delivery")
+    private List<Orders> orders = new ArrayList<>();
+
 }

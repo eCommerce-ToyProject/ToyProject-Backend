@@ -32,6 +32,24 @@ Orders {
     @Column(name = "pay_Mn", nullable = false)
     private String payMn;
 
+    @Column(name = "mem_id")
+    private String memId;
+
+    @Column(name = "zip_code")
+    private String zipCode;
+
+    @Column(name = "detailed_address")
+    private String detailAddress;
+
+    @Column(name = "goods_prc")
+    private BigDecimal goodsPrc;
+
+    @Column(name = "item_amt_add")
+    private BigDecimal iAmtAdd;
+
+    @Column(name = "dliv_fee")
+    private BigDecimal dlivFee;
+
     @ManyToOne
     @JoinColumn(name = "mem_no")
     private Member member;

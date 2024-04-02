@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class SignUpDto {
 
     private List<String> roles;
 
-    public Member toEntity(String encodedPassword, List<String> roles) {
+    public Member toEntity(String encodedPassword, List<String> roles, LocalDateTime now) {
 
         return Member.builder()
                 .id(id)
@@ -45,6 +46,7 @@ public class SignUpDto {
                 .email(email)
                 .phone(phone)
                 .roles(roles)
+                .memCreateDt(now)
                 .build();
     }
 

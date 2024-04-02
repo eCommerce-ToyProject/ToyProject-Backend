@@ -9,8 +9,8 @@ import lombok.*;
 @Setter
 public class UpdateDeliveryDto {
 
-    private Long delNo;
-    private String delPlc;
+    private Long dlivNo;
+    private String dlivPlc;
 //    private String memberId;
     private String zipCode;
     private String detailAddress;

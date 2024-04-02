@@ -31,7 +31,8 @@ public class MemberDto {
                 .id(id)
                 .username(username)
                 .email(email)
-                .phone(phone).build();
+                .phone(phone)
+                .build();
     }
 
 

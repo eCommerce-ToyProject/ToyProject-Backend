@@ -2,6 +2,7 @@ package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.entity.GoodsItem;
 import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ public class GoodsItemService {
     @Autowired
     private GoodsItemRepository goodsItemRepository;
 
+    @Transactional
     public Long updateQty(GoodsItem item, Long quantity) {
         Long updatedIQty = item.getIQty() - quantity;
         Long updatedISaveQty = item.getISaveQty();

@@ -58,8 +58,8 @@ public class DeliveryRepositoryCustomImpl implements DeliveryRepositoryCustom{
 
     private DeliveryDto mapToDeliveryDto(Delivery delivery) {
         return new DeliveryDto(
-                delivery.getDelNo(),
-                delivery.getDelPlc(),
+                delivery.getDlivNo(),
+                delivery.getDlivPlc(),
                 MemberDto.toDto(delivery.getMember()),
                 delivery.getZipCode(),
                 delivery.getDetailAddress(),

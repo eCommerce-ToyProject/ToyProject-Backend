@@ -2,6 +2,8 @@ package com.idrsys.toyprojectbackend.dto.orders;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @ToString
 @AllArgsConstructor
@@ -15,8 +17,9 @@ public class AddOrdersDto {
     private String optVal2;
     private Long quantity;
     private String paymn;
-    private String delPlc;
+    private String dlivPlc;
     private String zipCode;
     private String detailAddress;
     private String designation;
+    private BigDecimal dlivFee;
 }

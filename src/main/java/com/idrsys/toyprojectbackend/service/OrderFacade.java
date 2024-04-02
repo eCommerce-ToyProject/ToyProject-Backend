@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 @Slf4j
 @Service
+@Transactional
 public class OrderFacade {
 
     @Autowired
@@ -42,21 +44,44 @@ public class OrderFacade {
     // 커밋 전에 해제 시 갱신손실 발생 및 데드락 발생 위험
     // 추후 AOP 방식으로 재구성
 //    @Transactional
-    public boolean CreateOrderWithDistributedLock(AddOrdersDto addOrdersDto) {
-        String orderLockKey = ORDER_LOCK_PREFIX + ordersRepositoryCustom.getMaxOrderNo(); /*order.getOrdNo();*/
-        RLock lock = redisson.getLock(orderLockKey);
+//    public boolean createOrderWithDistributedLock(AddOrdersDto addOrdersDto) {
+//        String orderLockKey = ORDER_LOCK_PREFIX + ordersRepositoryCustom.getMaxOrderNo(); /*order.getOrdNo();*/
+//        RLock lock = redisson.getLock(orderLockKey);
+//        try {
+//            boolean isLocked = lock.tryLock(10, LOCK_TIMEOUT, TimeUnit.SECONDS);
+//            if (isLocked) {
+//                 return orderService.createOrder(addOrdersDto);
+//            } else {
+//                throw new RuntimeException("주문 처리를 위한 락을 획득하는데 실패했습니다.");
+//            }
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            throw new RuntimeException("인터럽션으로 인해 락을 획득하는데 실패했습니다.", e);
+//        } finally {
+//            lock.unlock();
+//        }
+//    }
+
+    public boolean executeWithDistributedLock(String lockKey, Supplier<Boolean> action) {
+        RLock lock = redisson.getLock(lockKey);
         try {
             boolean isLocked = lock.tryLock(10, LOCK_TIMEOUT, TimeUnit.SECONDS);
             if (isLocked) {
-                 return orderService.createOrder(addOrdersDto);
+                return action.get();
             } else {
-                throw new RuntimeException("주문 처리를 위한 락을 획득하는데 실패했습니다.");
+                throw new RuntimeException("Failed to acquire lock for the operation.");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("인터럽션으로 인해 락을 획득하는데 실패했습니다.", e);
+            throw new RuntimeException("Interrupted while trying to acquire lock.", e);
         } finally {
             lock.unlock();
         }
     }
+
+    public boolean createOrderWithDistributedLock(AddOrdersDto addOrdersDto) {
+        String orderLockKey = ORDER_LOCK_PREFIX + ordersRepositoryCustom.getMaxOrderNo();;
+        return executeWithDistributedLock(orderLockKey, () -> orderService.createOrder(addOrdersDto));
+    }
+
 }

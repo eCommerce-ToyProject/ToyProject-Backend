@@ -37,7 +37,7 @@ public class OrdersController {
         if(addOrdersDto.getOptVal1().isBlank()) {
             addOrdersDto.setOptVal1(null);
         }
-        return orderFacade.CreateOrderWithDistributedLock(addOrdersDto);
+        return orderFacade.createOrderWithDistributedLock(addOrdersDto);
     }
     @GetMapping("/myOrderList")
     public Page<SearchOrderDto> myOrder(@RequestParam(name = "id",required = false) String id, Pageable pageable){

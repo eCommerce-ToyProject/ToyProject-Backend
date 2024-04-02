@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 public class AddDeliveryDto {
 
-    private String delPlc;
+    private String dlivPlc;
     private String memberId;
     private String zipCode;
     private String detailAddress;

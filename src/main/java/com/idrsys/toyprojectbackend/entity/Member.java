@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -41,6 +42,18 @@ public class Member implements UserDetails {
 
     @Column(name = "mem_phone", nullable = false)
     private String phone;
+
+    @Column(name = "mem_created_dt", nullable = false)
+    private LocalDateTime memCreateDt;
+
+    @Column(name = "mem_deleted", nullable = false)
+    private boolean memDeleted;
+
+    @Column(name = "mem_deleted_dt")
+    private LocalDateTime memDeletedDt;
+
+    @Column(name = "mem_change_dt")
+    private LocalDateTime memChangeDt;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Delivery> deliveryList;

@@ -36,10 +36,29 @@ public class OrderItem {
     @JoinColumn(name = "goods_no")
     private Goods goods_no;
 
+    @Column(name = "goods_nm")
+    private String gNm;
+
+    @Column(name = "brand_no")
+    private Long bNo;
+
+    @Column(name = "cat_cd")
+    private Long catCd;
+
     @ManyToOne
     @JoinColumn(name = "item_no")
     private GoodsItem item_no;
 
-//    public Object toBuilder() {
-//    }
+    @Column(name = "item_nm")
+    private String iNm;
+
+    @Column(name = "option_val1")
+    private String optVal1;
+
+    @Column(name = "option_val2")
+    private String optVal2;
+
+    @Column(name = "item_amt_add")
+    private BigDecimal iAmtAdd;
+
 }

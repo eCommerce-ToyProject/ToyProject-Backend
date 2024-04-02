@@ -145,10 +145,12 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
 
     @Override
     public Long getMaxOrderNo(){
-        return jpaQueryFactory.select(
-                orders.ordNo.max())
+        Long getOrdNoMax = jpaQueryFactory.select(
+                orders.ordNo.max().coalesce(0L).as("ordNo"))
                 .from(orders)
-                .fetchFirst() + 1L;
+                .fetchFirst();
+
+        return getOrdNoMax + 1L;
     }
 
 }

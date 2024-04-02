@@ -1,5 +1,6 @@
 package com.idrsys.toyprojectbackend.service;
 
+import com.idrsys.toyprojectbackend.dto.delivery.AddDeliveryDto;
 import com.idrsys.toyprojectbackend.dto.orders.AddOrdersDto;
 import com.idrsys.toyprojectbackend.entity.*;
 import com.idrsys.toyprojectbackend.repository.delivery.DeliveryRepository;
@@ -9,7 +10,8 @@ import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrderItemRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrderStatusCodeRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -45,9 +47,12 @@ public class OrderService {
     private DeliveryRepository deliveryRepository;
 
     @Autowired
+    private DeliveryService deliveryService;
+
+    @Autowired
     private OrderItemRepository orderItemRepository;
 
-    @Transactional(rollbackOn = {Exception.class})
+    @Transactional(propagation = Propagation.REQUIRES_NEW,rollbackFor = {Exception.class})
     public boolean createOrder(AddOrdersDto addOrdersDto) {
         try {
             Member member = getMemberById(addOrdersDto.getMemberId());
@@ -55,17 +60,19 @@ public class OrderService {
             GoodsItem item = getGoodsItemByOptions(goods, addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
             Delivery delivery = getDelivery(addOrdersDto, member);
             if(delivery == null){
-                delivery = createDelivery(addOrdersDto, member);
+                delivery = deliveryService.createDeliveryWithOrder(buildAddDeliveryDto(addOrdersDto, member));
             }
             OrderStatusCode statusCode = getOrderStatusCode();
 
             updateGoodsItemQuantity(item, addOrdersDto.getQuantity());
 
-            BigDecimal totalPrice = calculateTotalPrice(goods, item, addOrdersDto.getQuantity());
+            BigDecimal totalPrice = calculateTotalPrice(goods, item, addOrdersDto.getQuantity(), addOrdersDto);
 
-            Orders orders = buildOrders(member, delivery, statusCode, totalPrice, addOrdersDto.getPaymn());
+            BigDecimal orderPrice = calculateOrderPrice(goods, item, addOrdersDto.getQuantity());
 
-            OrderItem orderItem = buildOrderItem(orders, goods, item, totalPrice, addOrdersDto.getQuantity());
+            Orders orders = buildOrders(member, delivery, statusCode, totalPrice, addOrdersDto.getPaymn(), item, goods, addOrdersDto);
+
+            OrderItem orderItem = buildOrderItem(orders, goods, item, orderPrice, addOrdersDto.getQuantity());
 
             saveOrderAndOrderItem(orders, orderItem);
 
@@ -91,22 +98,20 @@ public class OrderService {
     }
 
     private Delivery getDelivery(AddOrdersDto addOrdersDto, Member member) {
-        return deliveryRepository.findByDelPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(
-                addOrdersDto.getDelPlc(), member, addOrdersDto.getZipCode(),
+        return deliveryRepository.findByDlivPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(
+                addOrdersDto.getDlivPlc(), member, addOrdersDto.getZipCode(),
                 addOrdersDto.getDetailAddress(), addOrdersDto.getDesignation());
     }
 
-    private Delivery createDelivery(AddOrdersDto addOrdersDto, Member member){
-        Delivery buildDelivery = Delivery.builder()
-                .delPlc(addOrdersDto.getDelPlc())
-                .member(member)
+    private AddDeliveryDto buildAddDeliveryDto(AddOrdersDto addOrdersDto, Member member){
+
+        return AddDeliveryDto.builder()
+                .dlivPlc(addOrdersDto.getDlivPlc())
+                .memberId(member.getId())
                 .zipCode(addOrdersDto.getZipCode())
                 .detailAddress(addOrdersDto.getDetailAddress())
                 .designation(addOrdersDto.getDesignation())
-                .deleted(false)
                 .build();
-
-        return deliveryRepository.save(buildDelivery);
     }
 
     private OrderStatusCode getOrderStatusCode() {
@@ -114,16 +119,22 @@ public class OrderService {
                 .orElseThrow(() -> new IllegalArgumentException("Order status code not found"));
     }
 
+
     private void updateGoodsItemQuantity(GoodsItem item, Long quantity) {
         goodsItemService.updateQty(item, quantity);
     }
 
-    private BigDecimal calculateTotalPrice(Goods goods, GoodsItem item, Long quantity) {
+    private BigDecimal calculateTotalPrice(Goods goods, GoodsItem item, Long quantity, AddOrdersDto addOrdersDto) {
+        BigDecimal itemPrice = goods.getGPrice().add(item.getIAmtAdd()).add(addOrdersDto.getDlivFee());
+        return itemPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    private BigDecimal calculateOrderPrice(Goods goods, GoodsItem item, Long quantity) {
         BigDecimal itemPrice = goods.getGPrice().add(item.getIAmtAdd());
         return itemPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
-    private Orders buildOrders(Member member, Delivery delivery, OrderStatusCode statusCode, BigDecimal totalPrice, String payMn) {
+    private Orders buildOrders(Member member, Delivery delivery, OrderStatusCode statusCode, BigDecimal totalPrice, String payMn, GoodsItem item, Goods goods, AddOrdersDto addOrdersDto) {
         return Orders.builder()
                 .ordDt(LocalDateTime.now())
                 .toPrc(totalPrice)
@@ -131,16 +142,29 @@ public class OrderService {
                 .member(member)
                 .ord_status_cd(statusCode)
                 .delivery(delivery)
+                .memId(member.getId())
+                .zipCode(delivery.getZipCode())
+                .detailAddress(delivery.getDetailAddress())
+                .goodsPrc(goods.getGPrice())
+                .iAmtAdd(item.getIAmtAdd())
+                .dlivFee(addOrdersDto.getDlivFee())
                 .build();
     }
 
-    private OrderItem buildOrderItem(Orders orders, Goods goods, GoodsItem item, BigDecimal totalPrice, Long quantity) {
+    private OrderItem buildOrderItem(Orders orders, Goods goods, GoodsItem item, BigDecimal orderPrice, Long quantity) {
         return OrderItem.builder()
                 .ordQty(quantity)
-                .ordPrc(totalPrice)
+                .ordPrc(orderPrice)
                 .ord_no(orders)
                 .goods_no(goods)
+                .gNm(goods.getGName())
+                .bNo(goods.getBNo())
+                .catCd(goods.getCCd())
                 .item_no(item)
+                .iNm(item.getName())
+                .optVal1(item.getOptVal1())
+                .optVal2(item.getOptVal2())
+                .iAmtAdd(item.getIAmtAdd())
                 .build();
     }
 
