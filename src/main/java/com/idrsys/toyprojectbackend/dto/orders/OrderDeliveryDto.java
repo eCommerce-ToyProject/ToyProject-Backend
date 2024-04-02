@@ -10,7 +10,7 @@ import lombok.*;
 public class OrderDeliveryDto {
 
     private Long dlivNo;
-    private String delPlc;
+    private String dlivPlc;
     private String zCode;
     private String detailAddress;
     private String designation;

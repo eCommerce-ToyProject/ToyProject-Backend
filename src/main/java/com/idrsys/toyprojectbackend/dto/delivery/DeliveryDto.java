@@ -11,16 +11,16 @@ import lombok.*;
 public class DeliveryDto {
 
     private Long dlivNo;
-    private String delPlc;
+    private String dlivPlc;
     private MemberDto member;
     private String zCode;
     private String detailAddress;
     private String designation;
     private boolean deleted;
 
-    public DeliveryDto(Long dlivNo, String delPlc, String zCode, String detailAddress, String designation, boolean deleted) {
+    public DeliveryDto(Long dlivNo, String dlivPlc, String zCode, String detailAddress, String designation, boolean deleted) {
         this.dlivNo = dlivNo;
-        this.delPlc = delPlc;
+        this.dlivPlc = dlivPlc;
         this.zCode = zCode;
         this.detailAddress = detailAddress;
         this.designation = designation;
