@@ -8,6 +8,8 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Long> {
 
     Delivery findByDlivPlcAndMemberAndZipCodeAndDetailAddressAndDesignation(String dlivPlc, Member member, String zipCode, String detailAddress, String designation);
 
+    Delivery findByDlivPlcAndMemberAndZipCodeAndDetailAddressAndDesignationAndDeleted(String dlivPlc, Member member, String zipCode, String detailAddress, String designation, boolean deleted);
+
 //    Delivery findByDelPlcAndMember(String delPlc, Member member);
 
 }

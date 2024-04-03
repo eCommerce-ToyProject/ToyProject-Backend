@@ -2,12 +2,13 @@ package com.idrsys.toyprojectbackend.service;
 
 import com.idrsys.toyprojectbackend.entity.GoodsItem;
 import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 //@Builder
-@Service
+@Component
 public class GoodsItemService {
 
     @Autowired

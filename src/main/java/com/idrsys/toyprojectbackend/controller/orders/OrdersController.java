@@ -2,7 +2,6 @@ package com.idrsys.toyprojectbackend.controller.orders;
 
 import com.idrsys.toyprojectbackend.dto.orders.AddOrdersDto;
 import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
-import com.idrsys.toyprojectbackend.entity.Orders;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepositoryCustom;
 import com.idrsys.toyprojectbackend.service.OrderFacade;
 import com.idrsys.toyprojectbackend.service.OrderService;
@@ -37,7 +36,7 @@ public class OrdersController {
         if(addOrdersDto.getOptVal1().isBlank()) {
             addOrdersDto.setOptVal1(null);
         }
-        return orderFacade.createOrderWithDistributedLock(addOrdersDto);
+        return orderService.createOrder(addOrdersDto);
     }
     @GetMapping("/myOrderList")
     public Page<SearchOrderDto> myOrder(@RequestParam(name = "id",required = false) String id, Pageable pageable){

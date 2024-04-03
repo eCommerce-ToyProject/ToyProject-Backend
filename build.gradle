@@ -47,7 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.26.0'
 
-
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 }
 
 tasks.named('test') {

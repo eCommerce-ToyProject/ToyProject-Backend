@@ -6,7 +6,7 @@ import com.idrsys.toyprojectbackend.dto.member.MemberDto;
 import com.idrsys.toyprojectbackend.dto.member.SignUpDto;
 import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
