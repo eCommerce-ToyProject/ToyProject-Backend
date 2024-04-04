@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +38,7 @@ public class GoodsContoller {
 
     @GetMapping("/goodsList")
     public Page<GoodsSearchDto> goodsList(@RequestParam(name = "values",required = false, defaultValue = "") String values,
-                                 Pageable pageable) {
+                                 @PageableDefault(size = Integer.MAX_VALUE) Pageable pageable) {
 
         return goodsRepositoryCustom.goodsSearch(values, pageable);
     }
