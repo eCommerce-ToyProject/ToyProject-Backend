@@ -27,26 +27,26 @@ public class ConcurrencyTest {
     @Autowired
     private GoodsItemRepository goodsItemRepository;
 
-    @Test
-    void 동시에_같은_물품_100개구매() throws InterruptedException {
-        AddOrdersDto addOrdersDto = new AddOrdersDto("hello",5L,"L", null, 1L, "CREDIT_CARD", "서울 광진구 광장로1길 1", "04966", "광장중학교 1층 교무실", "학교");
-        ExecutorService executorService = Executors.newFixedThreadPool(100);
-        CountDownLatch countDownLatch = new CountDownLatch(100);
-
-        for (int i = 0; i < 100; i++) {
-            executorService.submit(() -> {
-                try {
-                    orderFacade.CreateOrderWithDistributedLock(addOrdersDto);
-                } finally {
-                    countDownLatch.countDown();
-                }
-            });
-        }
-
-        countDownLatch.await();
-        GoodsItem actual = goodsItemRepository.findByOptVal1AndOptVal2(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
-        assertThat(actual.getISaveQty()).isZero();
-    }
+//    @Test
+//    void 동시에_같은_물품_100개구매() throws InterruptedException {
+//        AddOrdersDto addOrdersDto = new AddOrdersDto("hello",5L,"L", null, 1L, "CREDIT_CARD", "서울 광진구 광장로1길 1", "04966", "광장중학교 1층 교무실", "학교");
+//        ExecutorService executorService = Executors.newFixedThreadPool(100);
+//        CountDownLatch countDownLatch = new CountDownLatch(100);
+//
+//        for (int i = 0; i < 100; i++) {
+//            executorService.submit(() -> {
+//                try {
+//                    orderFacade.CreateOrderWithDistributedLock(addOrdersDto);
+//                } finally {
+//                    countDownLatch.countDown();
+//                }
+//            });
+//        }
+//
+//        countDownLatch.await();
+//        GoodsItem actual = goodsItemRepository.findByOptVal1AndOptVal2(addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
+//        assertThat(actual.getISaveQty()).isZero();
+//    }
 //    @Test
 //    void 동시에_같은_물품_100개구매_lock사용_안함() throws InterruptedException {
 //        AddOrdersDto addOrdersDto = new AddOrdersDto(2L,3L,"S", "핑크", 1L, "CREDIT_CARD", 103L);

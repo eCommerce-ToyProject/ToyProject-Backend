@@ -48,8 +48,4 @@ public class OrdersController {
         return ordersRepositoryCustom.ordersPage(id,pageable);
     }
 
-//    @GetMapping("/ordering")
-//    public List<>
-
-
 }
