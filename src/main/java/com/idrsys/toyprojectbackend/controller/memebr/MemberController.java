@@ -1,7 +1,7 @@
 package com.idrsys.toyprojectbackend.controller.memebr;
 
 import com.idrsys.toyprojectbackend.config.jwt.JwtTokenProvider;
-import com.idrsys.toyprojectbackend.dto.*;
+import com.idrsys.toyprojectbackend.dto.jwt.JwtToken;
 import com.idrsys.toyprojectbackend.dto.member.MemberDto;
 import com.idrsys.toyprojectbackend.dto.member.SignInDto;
 import com.idrsys.toyprojectbackend.dto.member.SignUpDto;
@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 //@Tag(name = "회원", description = "회원 관련 api 입니다.")
 @Slf4j
@@ -51,8 +52,13 @@ public class MemberController {
 //    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
     @GetMapping("/loginCheck")
     public String loginCheck(HttpServletRequest request) {
-        String id = SecurityUtil.getCurrentMemberId();
-        return id;
+        try {
+            String id = SecurityUtil.getCurrentMemberId();
+            return id;
+        } catch (Exception e){
+            return null;
+        }
+
     }
 
 //    @Operation(summary = "sign up - 회원가입", description = "")
@@ -72,6 +78,11 @@ public class MemberController {
     @GetMapping("/orderingMyinfo")
     public List<MemberDto> myInfo(@RequestParam(name = "id") String id){
         return memberRepositoryCustom.memberOrdering(id);
+    }
+
+    @PostMapping("/reissuanceAccessToken")
+    public JwtToken regenerateAccessToken(@RequestBody Map<String, String> refreshToken){
+        return memberService.reissuanceAccessTokenWithRefreshToken(refreshToken.get("refreshToken"));
     }
 
 }

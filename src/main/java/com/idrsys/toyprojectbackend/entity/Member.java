@@ -8,9 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -70,6 +68,14 @@ public class Member implements UserDetails {
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> getAccessTokenClaims(){
+        return Map.of(
+                "id", getId(),
+                "username", getUsername(),
+                "createDateTime", getMemCreateDt().toString()
+        );
     }
 
     @Override

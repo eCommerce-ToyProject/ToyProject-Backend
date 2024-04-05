@@ -19,3 +19,6 @@ spring:
     redis:
       host: ${REDIS_SERVER_HOST}
       port: ${REDIS_SERVER_PORT}
+springdoc:
+  api-docs:
+    enabled: false

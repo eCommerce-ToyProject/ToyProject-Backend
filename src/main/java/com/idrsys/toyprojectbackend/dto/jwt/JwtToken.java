@@ -1,4 +1,4 @@
-package com.idrsys.toyprojectbackend.dto;
+package com.idrsys.toyprojectbackend.dto.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

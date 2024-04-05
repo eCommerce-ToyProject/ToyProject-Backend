@@ -15,5 +15,20 @@ public class RefreshToken {
     private String id;
     @Indexed
     private String refreshToken;
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public static RefreshToken from(String id, String refreshToken) {
+        return RefreshToken.builder()
+                .id(id)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public void update(String sb) {
+        this.setRefreshToken(sb);
+    }
     
 }

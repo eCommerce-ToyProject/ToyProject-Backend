@@ -1,8 +1,6 @@
 package com.idrsys.toyprojectbackend.dto.member;
 
 import com.idrsys.toyprojectbackend.entity.Member;
-//import jakarta.validation.constraints.NotBlank;
-//import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
