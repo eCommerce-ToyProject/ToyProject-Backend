@@ -3,6 +3,7 @@ package com.idrsys.toyprojectbackend.config.jwt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.idrsys.toyprojectbackend.entity.Member;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -35,13 +36,18 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateRefreshToken() {
+    public String generateRefreshToken(Member member) {
         long now = new Date().getTime();
 
         return Jwts.builder()
                 .claim("id", UUID.randomUUID().toString())
+                .claim("name", member.getUsername())
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
+    }
+
+    public boolean vaildateRefreshToken(String refreshToken){
+        return true;
     }
 
     public String generateAccessToken(Map<String, Object> claims, Authentication authentication, int seconds) {
@@ -86,9 +92,8 @@ public class JwtTokenProvider {
 
         // UserDetails 객체를 만들어서 Authentication return
         // UserDetails: interface, User: UserDetails를 구현한 class
-        Map<String, Object> claims2 = getClaims(accessToken);
-        String a = (String) claims2.get("id");
-        UserDetails principal = new User((String) claims2.get("id"), "", authorities);
+        Map<String, Object> claimsToMap = getClaims(accessToken);
+        UserDetails principal = new User((String) claimsToMap.get("id"), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 

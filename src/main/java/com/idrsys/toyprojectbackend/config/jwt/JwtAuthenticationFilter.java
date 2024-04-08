@@ -38,17 +38,16 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         // 2. validateToken으로 토큰 유효성 검사
         if (token != null) {
             try {
-                if (jwtTokenProvider.isTokenExpired(token)) {
-                    throw new JwtAuthenticationException("Access token has expired");
+                if(jwtTokenProvider.validateToken(token)){
+                    Map<String,Object> claims = jwtTokenProvider.getClaims(token);
+                    // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info(String.valueOf(authentication));
                 }
-                Map<String,Object> claims = jwtTokenProvider.getClaims(token);
-                // 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info(String.valueOf(authentication));
             } catch (ExpiredJwtException e) {
                 log.error(e.getMessage());
-                sendErrorResponse(response, HttpStatus.BAD_REQUEST, "Access token has expired");
+                sendErrorResponse(response, HttpStatus.UNAUTHORIZED, "Access token has expired");
                 return;
             }
         }
@@ -60,11 +59,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         httpResponse.setStatus(status.value());
         httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Create a JSON object with the error message
         ObjectMapper objectMapper = new ObjectMapper();
         String responseBody = objectMapper.writeValueAsString(Map.of("error", message));
 
-        // Write the JSON object to the response body
         httpResponse.getWriter().write(responseBody);
     }
 
@@ -75,7 +72,9 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String accessToken = "";
         if(cookies != null && cookies.length > 0 ) {
             for (Cookie cookie : cookies) {
-                accessToken = cookie.getValue();
+                if(cookie.getName().equals("accessToken")) {
+                    accessToken = cookie.getValue();
+                }
             }
             if(Objects.equals(accessToken, "undefined")){
                 return null;

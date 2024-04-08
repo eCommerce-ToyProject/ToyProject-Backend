@@ -12,6 +12,7 @@ import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrderItemRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrderStatusCodeRepository;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepository;
+import com.idrsys.toyprojectbackend.util.ObjectUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,7 +91,7 @@ public class OrderService {
     }
 
     private GoodsItem getGoodsItemByOptions(Goods goods, String optVal1, String optVal2) {
-        return goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods);
+        return ObjectUtil.NullCheckElseReturnObject(java.util.Optional.ofNullable(goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods)), goods.getGNo()+ "의 상품에 "+optVal1 + "과 "+ optVal2 + "에 해당하는 옵션을 찾을 수 없습니다.");
     }
 
     private Delivery retrieveOrCreateDelivery(AddOrdersDto addOrdersDto, Member member) {

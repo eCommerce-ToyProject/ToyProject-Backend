@@ -33,7 +33,7 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final static int ACCESS_TOKEN_MAXAGE = 60;
+    private final static int ACCESS_TOKEN_MAXAGE = 60*30;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
         // 3. 인증 정보를 기반으로 JWT 토큰 생성
         Member member = memberRepository.findById(id).orElseThrow(NullPointerException::new);
         String accessToken = jwtTokenProvider.generateAccessToken(member.getAccessTokenClaims(), authentication, ACCESS_TOKEN_MAXAGE);
-        String refreshToken = jwtTokenProvider.generateRefreshToken();
+        String refreshToken = jwtTokenProvider.generateRefreshToken(member);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -81,7 +81,7 @@ public class MemberServiceImpl implements MemberService {
 
             log.info(authentication.toString());
             String newAccesstoken = jwtTokenProvider.generateAccessToken(member.getAccessTokenClaims(), authentication, ACCESS_TOKEN_MAXAGE);
-            String refreshTokenRotation = jwtTokenProvider.generateRefreshToken();
+            String refreshTokenRotation = jwtTokenProvider.generateRefreshToken(member);
 
             return JwtToken.builder()
                     .grantType("Bearer")
@@ -89,6 +89,7 @@ public class MemberServiceImpl implements MemberService {
                     .refreshToken(saveRefreshToken(refreshTokenRotation, member))
                     .build();
         }catch (NullPointerException e){
+//            deleteRefreshToken();
             throw new NullPointerException("Expired or invalid token");
         }
     }
