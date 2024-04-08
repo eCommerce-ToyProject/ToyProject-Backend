@@ -17,6 +17,8 @@ public interface MemberService {
 
     JwtToken reissuanceAccessTokenWithRefreshToken(String inputRefreshToken);
 
+    void deleteRefreshToken(String refreshToken);
+
     @Transactional
     MemberDto signUp(SignUpDto signUpDto);
 

@@ -15,20 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +33,7 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final static int ACCESS_TOKEN_MAXAGE = 60 * 30;
+    private final static int ACCESS_TOKEN_MAXAGE = 60;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -80,20 +74,28 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public JwtToken reissuanceAccessTokenWithRefreshToken(String inputRefreshToken) {
-        RefreshToken refreshToken = refreshTokenRedisRepository.findByRefreshToken(inputRefreshToken).orElseThrow(NullPointerException::new);
-        Member member = memberRepository.findById(refreshToken.getId()).orElseThrow(NullPointerException::new);
+        try{
+            RefreshToken refreshToken = refreshTokenRedisRepository.findByRefreshToken(inputRefreshToken).orElseThrow(NullPointerException::new);
+            Member member = memberRepository.findById(refreshToken.getId()).orElseThrow(NullPointerException::new);
+            Authentication authentication = authenticateMember(member);
 
-        Authentication authentication = authenticateMember(member);
+            log.info(authentication.toString());
+            String newAccesstoken = jwtTokenProvider.generateAccessToken(member.getAccessTokenClaims(), authentication, ACCESS_TOKEN_MAXAGE);
+            String refreshTokenRotation = jwtTokenProvider.generateRefreshToken();
 
-        log.info(authentication.toString());
-        String newAccesstoken = jwtTokenProvider.generateAccessToken(member.getAccessTokenClaims(), authentication, ACCESS_TOKEN_MAXAGE);
-        String refreshTokenRotation = jwtTokenProvider.generateRefreshToken();
+            return JwtToken.builder()
+                    .grantType("Bearer")
+                    .accessToken(newAccesstoken)
+                    .refreshToken(saveRefreshToken(refreshTokenRotation, member))
+                    .build();
+        }catch (NullPointerException e){
+            throw new NullPointerException("Expired or invalid token");
+        }
+    }
 
-        return JwtToken.builder()
-                .grantType("Bearer")
-                .accessToken(newAccesstoken)
-                .refreshToken(saveRefreshToken(refreshTokenRotation, member))
-                .build();
+    @Override
+    public void deleteRefreshToken(String refreshToken) {
+        refreshTokenRedisRepository.deleteByRefreshToken(refreshToken);
     }
 
     private Authentication authenticateMember(Member member) {
