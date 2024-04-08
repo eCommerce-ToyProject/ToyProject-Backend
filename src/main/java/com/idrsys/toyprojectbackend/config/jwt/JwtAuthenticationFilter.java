@@ -72,8 +72,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String accessToken = "";
         if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             accessToken = bearerToken.substring(7);
+            if(Objects.equals(accessToken, "undefined")){
+                return null;
+            }
             return accessToken;
         }
+
 //        if(cookies != null && cookies.length > 0 ) {
 //            for (Cookie cookie : cookies) {
 //                if(cookie.getName().equals("accessToken")) {

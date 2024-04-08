@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,8 +47,20 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean vaildateRefreshToken(String refreshToken){
-        return true;
+    public String validationRefreshToken(String refreshToken){
+        try {
+            Jwt<JwsHeader, Claims> parseRefreshToken = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(refreshToken);
+
+            String name = parseRefreshToken.getPayload().get("name", String.class);
+
+            return name;
+        }catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+
     }
 
     public String generateAccessToken(Map<String, Object> claims, Authentication authentication, int seconds) {

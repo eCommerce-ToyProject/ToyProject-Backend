@@ -89,14 +89,35 @@ public class MemberServiceImpl implements MemberService {
                     .refreshToken(saveRefreshToken(refreshTokenRotation, member))
                     .build();
         }catch (NullPointerException e){
-//            deleteRefreshToken();
+            if(CheckRefreshToken(inputRefreshToken)){
+                deleteRefreshToken(getMemberByRefreshToken(inputRefreshToken).getId());
+            }
             throw new NullPointerException("Expired or invalid token");
         }
     }
 
+    private Member getMemberByRefreshToken(String inputRefreshToken){
+        try {
+            return memberRepository.findByUsername(jwtTokenProvider.validationRefreshToken(inputRefreshToken)).orElseThrow(NullPointerException::new);
+        }catch (NullPointerException e){
+            throw new NullPointerException("Invalid refresh token");
+        }
+
+    }
+
+    private boolean CheckRefreshToken(String inputRefreshToken){
+        try {
+            Member member = memberRepository.findByUsername(jwtTokenProvider.validationRefreshToken(inputRefreshToken)).orElseThrow(NullPointerException::new);
+            return true;
+        }catch (NullPointerException e){
+            throw new NullPointerException("Invalid refresh token");
+        }
+
+    }
+
     @Override
-    public void deleteRefreshToken(String refreshToken) {
-        refreshTokenRedisRepository.deleteByRefreshToken(refreshToken);
+    public void deleteRefreshToken(String id) {
+        refreshTokenRedisRepository.deleteById(id);
     }
 
     private Authentication authenticateMember(Member member) {
