@@ -7,7 +7,7 @@ import java.util.Optional;
 @Component
 public class ObjectUtil {
 
-    public static <T> T NullCheckElseReturnObject(Optional<T> optionalT) {
+    public static <T> T NullCheck(Optional<T> optionalT) {
         T t = optionalT.orElse(null);
 
         if(t == null) {
@@ -15,7 +15,7 @@ public class ObjectUtil {
         }
         return t;
     }
-    public static <T> T NullCheckElseReturnObject(Optional<T> optionalT, String message) {
+    public static <T> T NullCheck(Optional<T> optionalT, String message) {
         T t = optionalT.orElse(null);
 
         if(t == null) {

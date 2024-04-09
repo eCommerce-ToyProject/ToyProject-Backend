@@ -55,6 +55,7 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
 
     @DistributedLock(lockType = LockType.ORDER)
+    @Transactional(rollbackFor = Exception.class)
     public boolean createOrder(AddOrdersDto addOrdersDto) {
         try {
             Member member = getMemberById(addOrdersDto.getMemberId());
@@ -81,17 +82,15 @@ public class OrderService {
     }
 
     private Member getMemberById(String memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException(memberId + " 아이디를 찾을 수 없습니다."));
+        return  ObjectUtil.NullCheck(memberRepository.findById(memberId), memberId + " 유저 정보를 찾을 수 없습니다.");
     }
 
     private Goods getGoodsById(Long goodsId) {
-        return goodsRepository.findById(goodsId)
-                .orElseThrow(() -> new IllegalArgumentException(goodsId + " 상품 아이디를 찾을 수 없습니다."));
+        return ObjectUtil.NullCheck(goodsRepository.findById(goodsId), goodsId + " 상품 아이디를 찾을 수 없습니다.");
     }
 
     private GoodsItem getGoodsItemByOptions(Goods goods, String optVal1, String optVal2) {
-        return ObjectUtil.NullCheckElseReturnObject(java.util.Optional.ofNullable(goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods)), goods.getGNo()+ "의 상품에 "+optVal1 + "과 "+ optVal2 + "에 해당하는 옵션을 찾을 수 없습니다.");
+        return ObjectUtil.NullCheck(java.util.Optional.ofNullable(goodsItemRepository.findByOptVal1AndOptVal2AndGoods(optVal1, optVal2, goods)), goods.getGNo()+ "번 상품에 "+optVal1 + "와(과) "+ optVal2 + "에 해당하는 옵션을 찾을 수 없습니다.");
     }
 
     private Delivery retrieveOrCreateDelivery(AddOrdersDto addOrdersDto, Member member) {
@@ -120,8 +119,7 @@ public class OrderService {
     }
 
     private OrderStatusCode getOrderStatusCode() {
-        return orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED")
-                .orElseThrow(() -> new IllegalArgumentException("Order status code not found"));
+        return ObjectUtil.NullCheck(orderStatusCodeRepository.findById("STATUS_PAYMENT_COMPLETED"), "주문 상태 코드를 찾을 수 없습니다.");
     }
 
 

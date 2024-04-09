@@ -14,7 +14,7 @@ public class GoodsItemService {
     @Autowired
     private GoodsItemRepository goodsItemRepository;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long updateQty(GoodsItem item, Long quantity) {
         Long updatedIQty = item.getIQty() - quantity;
         Long updatedISaveQty = item.getISaveQty();
