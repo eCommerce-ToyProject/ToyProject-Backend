@@ -38,7 +38,7 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final static int ACCESS_TOKEN_MAXAGE = 30/***60**/;
+    private final static int ACCESS_TOKEN_MAXAGE = 30*60;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -101,10 +101,10 @@ public class MemberServiceImpl implements MemberService {
                     .refreshToken(saveRefreshToken(refreshTokenRotation, member))
                     .build();
         }catch (NullPointerException e){
-//            if(CheckRefreshToken(inputRefreshToken)){
-//                deleteRefreshToken(getMemberByRefreshToken(inputRefreshToken).getId());
-//                throw new NullPointerException("Expired token");
-//            }
+            if(CheckRefreshToken(inputRefreshToken)){
+                deleteRefreshToken(getMemberByRefreshToken(inputRefreshToken).getId());
+                throw new NullPointerException("Expired token");
+            }
             throw new NullPointerException("Expired or invalid token");
         }
     }

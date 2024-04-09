@@ -39,10 +39,9 @@ public class OrderFacade {
     private final AopForTransaction aopForTransaction;
 
     private final RedissonClient redissonClient;
-    @Pointcut("@annotation(com.idrsys.toyprojectbackend.annotation.DistributedLock)")
-    private void distributedLock(){
 
-    }
+    @Pointcut("@annotation(com.idrsys.toyprojectbackend.annotation.DistributedLock)")
+    private void distributedLock(){}
 
     // 트랜잭션이 커밋 후 락 해제
     // 커밋 전에 해제 시 갱신손실 발생 및 데드락 발생 위험

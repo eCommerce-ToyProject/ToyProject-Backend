@@ -55,13 +55,12 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
 
     @DistributedLock(lockType = LockType.ORDER)
-    @Transactional(rollbackFor = Exception.class)
     public boolean createOrder(AddOrdersDto addOrdersDto) {
         try {
             Member member = getMemberById(addOrdersDto.getMemberId());
             Goods goods = getGoodsById(addOrdersDto.getGoodsId());
-            GoodsItem item = getGoodsItemByOptions(goods, addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
             Delivery delivery = retrieveOrCreateDelivery(addOrdersDto, member);
+            GoodsItem item = getGoodsItemByOptions(goods, addOrdersDto.getOptVal1(), addOrdersDto.getOptVal2());
             OrderStatusCode statusCode = getOrderStatusCode();
 
             updateGoodsItemQuantity(item, addOrdersDto.getQuantity());
