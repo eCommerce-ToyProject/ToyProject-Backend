@@ -34,12 +34,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // 1. Request Header에서 JWT 토큰 추출
         String token = resolveToken((HttpServletRequest) request);
-//        String path = ((HttpServletRequest) request).getRequestURI();
-//        if ("/members/reissuanceAccessToken".equals(path)||"/members/sign-up".equals(path)
-//                ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
 
         // 2. validateToken으로 토큰 유효성 검사
         if (token != null) {
@@ -77,13 +71,6 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         Cookie[] cookies = request.getCookies();
         String path =  request.getRequestURI();
         String accessToken = "";
-//        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-//            accessToken = bearerToken.substring(7);
-//            if(Objects.equals(accessToken, "undefined")){
-//                return null;
-//            }
-//            return accessToken;
-//        }
         if ("/members/reissuanceAccessToken".equals(path)||"/members/sign-up".equals(path)
                 ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)) {
             return null;

@@ -82,6 +82,18 @@ public class MemberController {
 
         return ResponseEntity.ok(savedMemberDto);
     }
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        Cookie accesstoken = new Cookie("accessToken", null);
+        accesstoken.setPath("/");
+        accesstoken.setMaxAge(0);
+        response.addCookie(accesstoken);
+
+        Cookie refreshToken = new Cookie("refreshToken",null);
+        refreshToken.setPath("/");
+        refreshToken.setMaxAge(0);
+        response.addCookie(refreshToken);
+    }
 
 //    @Operation(summary = "comfirm by id - 아이디 중복체크", description = "")
     @GetMapping("/id/exists")
@@ -117,7 +129,6 @@ public class MemberController {
         refreshToken.setHttpOnly(true);
         refreshToken.setSecure(true);
         response.addCookie(refreshToken);
-//        return ;
     }
 
 }
