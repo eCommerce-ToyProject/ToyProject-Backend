@@ -10,6 +10,7 @@ import com.idrsys.toyprojectbackend.entity.RefreshToken;
 import com.idrsys.toyprojectbackend.repository.RefreshTokenRedisRepository;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.idrsys.toyprojectbackend.service.MemberService;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final static int ACCESS_TOKEN_MAXAGE = 30*60;
+    private final static int ACCESS_TOKEN_MAXAGE = 30;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -78,9 +79,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public JwtToken reissuanceAccessTokenWithRefreshToken(String inputRefreshToken) {
+    public JwtToken reissuanceAccessTokenWithRefreshToken(String refreshTokenCookie) {
         try{
-            RefreshToken refreshToken = refreshTokenRedisRepository.findByRefreshToken(inputRefreshToken).orElseThrow(NullPointerException::new);
+            RefreshToken refreshToken = refreshTokenRedisRepository.findByRefreshToken(refreshTokenCookie).orElseThrow(NullPointerException::new);
             Member member = memberRepository.findById(refreshToken.getId()).orElseThrow(NullPointerException::new);
             Collection<? extends GrantedAuthority> authorities = member.getRoles().stream()
                     .map(SimpleGrantedAuthority::new)
@@ -101,12 +102,24 @@ public class MemberServiceImpl implements MemberService {
                     .refreshToken(saveRefreshToken(refreshTokenRotation, member))
                     .build();
         }catch (NullPointerException e){
-            if(CheckRefreshToken(inputRefreshToken)){
-                deleteRefreshToken(getMemberByRefreshToken(inputRefreshToken).getId());
+            if(CheckRefreshToken(refreshTokenCookie)){
+                deleteRefreshToken(getMemberByRefreshToken(refreshTokenCookie).getId());
                 throw new NullPointerException("Expired token");
             }
             throw new NullPointerException("Expired or invalid token");
         }
+    }
+
+    private String getRefreshTokenByCookie(Cookie[] cookies){
+        String refreshTokenCookie = null;
+        if(cookies != null && cookies.length > 0 ) {
+            for (Cookie cookie : cookies) {
+                if(cookie.getName().equals("refreshToken")) {
+                    refreshTokenCookie = cookie.getValue();
+                }
+            }
+        }
+        return refreshTokenCookie;
     }
 
     private Member getMemberByRefreshToken(String inputRefreshToken){

@@ -4,6 +4,7 @@ import com.idrsys.toyprojectbackend.dto.jwt.JwtToken;
 import com.idrsys.toyprojectbackend.dto.member.MemberDto;
 import com.idrsys.toyprojectbackend.dto.member.SignUpDto;
 import com.idrsys.toyprojectbackend.entity.Member;
+import jakarta.servlet.http.Cookie;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -16,6 +17,8 @@ public interface MemberService {
     JwtToken signIn(String id, String password);
 
     JwtToken reissuanceAccessTokenWithRefreshToken(String inputRefreshToken);
+
+//    JwtToken reissuanceAccessTokenWithRefreshToken(Cookie[] cookies);
 
     void deleteRefreshToken(String refreshToken);
 

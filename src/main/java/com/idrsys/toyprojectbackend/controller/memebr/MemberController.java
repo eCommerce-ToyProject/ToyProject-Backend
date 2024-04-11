@@ -11,7 +11,9 @@ import com.idrsys.toyprojectbackend.service.MemberService;
 import com.idrsys.toyprojectbackend.util.SecurityUtil;
 //import io.swagger.v3.oas.annotations.Operation;
 //import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +42,25 @@ public class MemberController {
 
 //    @Operation(summary = "sign in - 로그인", description = "")
     @PostMapping("/sign-in")
-    public JwtToken signIn(@RequestBody SignInDto signInDto) {
+    public void signIn(@RequestBody SignInDto signInDto, HttpServletResponse response) {
         String id = signInDto.getId();
         String password = signInDto.getPassword();
         JwtToken jwtToken = memberService.signIn(id, password);
         log.info("request id = {}, password = {}", id, password);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
-        return jwtToken;
+
+        Cookie accesstoken = new Cookie("accessToken", jwtToken.getAccessToken());
+        accesstoken.setPath("/");
+        accesstoken.setHttpOnly(true);
+        accesstoken.setSecure(true);
+        response.addCookie(accesstoken);
+
+        Cookie refreshToken = new Cookie("refreshToken", jwtToken.getRefreshToken());
+        refreshToken.setPath("/");
+        refreshToken.setHttpOnly(true);
+        refreshToken.setSecure(true);
+        response.addCookie(refreshToken);
+
     }
 
 //    @Operation(summary = "login check by access token - 엑세스 토큰으로 로그인 체크", description = "")
@@ -81,8 +95,29 @@ public class MemberController {
     }
 
     @PostMapping("/reissuanceAccessToken")
-    public JwtToken regenerateAccessToken(@RequestBody Map<String, String> refreshToken){
-        return memberService.reissuanceAccessTokenWithRefreshToken(refreshToken.get("refreshToken"));
+    public void regenerateAccessToken(HttpServletRequest request,  HttpServletResponse response){
+        Cookie[] cookies = request.getCookies();
+        String refreshTokenCookie = null;
+        if(cookies != null && cookies.length > 0 ) {
+            for (Cookie cookie : cookies) {
+                if(cookie.getName().equals("refreshToken")) {
+                    refreshTokenCookie = cookie.getValue();
+                }
+            }
+        }
+        JwtToken jwtToken = memberService.reissuanceAccessTokenWithRefreshToken(refreshTokenCookie);
+        Cookie accesstoken = new Cookie("accessToken", jwtToken.getAccessToken());
+        accesstoken.setPath("/");
+        accesstoken.setHttpOnly(true);
+        accesstoken.setSecure(true);
+        response.addCookie(accesstoken);
+
+        Cookie refreshToken = new Cookie("refreshToken", jwtToken.getRefreshToken());
+        refreshToken.setPath("/");
+        refreshToken.setHttpOnly(true);
+        refreshToken.setSecure(true);
+        response.addCookie(refreshToken);
+//        return ;
     }
 
 }
