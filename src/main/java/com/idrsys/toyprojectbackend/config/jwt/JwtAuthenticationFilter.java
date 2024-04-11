@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String path =  request.getRequestURI();
         String accessToken = "";
         if ("/members/reissuanceAccessToken".equals(path)||"/members/sign-up".equals(path)
-                ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)) {
+                ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)||"/goods/**".equals(path)) {
             return null;
         }
         if(cookies != null && cookies.length > 0 ) {
