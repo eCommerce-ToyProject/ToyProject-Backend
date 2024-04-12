@@ -2,6 +2,7 @@ package com.idrsys.toyprojectbackend.config;
 
 import com.idrsys.toyprojectbackend.config.jwt.JwtAuthenticationFilter;
 import com.idrsys.toyprojectbackend.config.jwt.JwtTokenProvider;
+import com.idrsys.toyprojectbackend.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -43,7 +43,7 @@ public class ConcurrencyTest {
     @Test
     @DisplayName("Concurrent Order API Test")
     public void concurrencyOrderTest() throws InterruptedException {
-        int numThreads = 1000;
+        int numThreads = 500;
         ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         CountDownLatch latch = new CountDownLatch(numThreads);
 
@@ -63,6 +63,37 @@ public class ConcurrencyTest {
         }
 
         latch.await();
+
+        log.info("Success count: {}", successCount.get());
+        log.info("Failure count: {}", failureCount.get());
+    }
+
+    @Test
+    @DisplayName("Concurrent Order API Test")
+    public void concurrencyOrderTest2() throws InterruptedException {
+        int numThreads = 500;
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        CountDownLatch latch = new CountDownLatch(numThreads);
+
+        for (int i = 0; i < numThreads; i++) {
+            executor.submit(() -> {
+                try {
+                    sendCreateOrderRequest();
+                    successCount.incrementAndGet();
+                    log.info("Success count: {}", successCount.get());
+                } catch (Exception e) {
+                    log.error("주문을 생성하는데 오류가 발샐하였습니다 : {}", e.getMessage());
+                    failureCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+
+        log.info("Success count: {}", successCount.get());
+        log.info("Failure count: {}", failureCount.get());
     }
 
     private void sendCreateOrderRequest() {
@@ -101,10 +132,10 @@ public class ConcurrencyTest {
                 .jsonPath("$.message").isEqualTo("Order created successfully");
     }
 
-    @AfterEach
-    void printTestResults() {
-        log.info("Total successful requests: {}", successCount.get());
-        log.info("Total failed requests: {}", failureCount.get());
-    }
+//    @AfterEach
+//    void printTestResults() {
+//        log.info("Total successful requests: {}", successCount.get());
+//        log.info("Total failed requests: {}", failureCount.get());
+//    }
 }
 

@@ -1,9 +1,8 @@
 package com.idrsys.toyprojectbackend.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.idrsys.toyprojectbackend.exception.JwtAuthenticationException;
+import com.idrsys.toyprojectbackend.exception.GlobalExceptionHandler;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -17,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -71,8 +70,12 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         Cookie[] cookies = request.getCookies();
         String path =  request.getRequestURI();
         String accessToken = "";
+        AntPathMatcher antPathMatcher = new AntPathMatcher();
+        if(antPathMatcher.match("/goods/**", path)) {
+            return null;
+        }
         if ("/members/reissuanceAccessToken".equals(path)||"/members/sign-up".equals(path)
-                ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)||"/goods/**".matches(path)) {
+                ||"/members/sign-in".equals(path)||"/members/id/exists".equals(path)) {
             return null;
         }
         if(cookies != null && cookies.length > 0 ) {
