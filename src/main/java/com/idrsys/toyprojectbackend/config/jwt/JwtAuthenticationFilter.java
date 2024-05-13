@@ -1,7 +1,6 @@
 package com.idrsys.toyprojectbackend.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.idrsys.toyprojectbackend.exception.GlobalExceptionHandler;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
