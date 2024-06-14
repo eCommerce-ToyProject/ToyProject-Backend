@@ -39,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
-    private final static int ACCESS_TOKEN_MAXAGE = 30;
+    private final static int ACCESS_TOKEN_MAXAGE = 60*30;
 
     private final PasswordEncoder passwordEncoder;
 
