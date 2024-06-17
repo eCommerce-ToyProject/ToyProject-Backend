@@ -53,6 +53,28 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
         return new PageImpl<>(mapToSearchOrderDtoDtoList(ordersDtoList), pageable, mapToSearchOrderDtoDtoList(ordersDtoList).size());
     }
 
+    @Override
+    public List<SearchOrderDto> orderList(String id, Pageable pageable) {
+
+        Member member = memberRepository.findById(id).orElse(null);
+
+        List<Orders> ordersDtoList;
+
+        if(member == null){
+            return null;
+        }else{
+            ordersDtoList = jpaQueryFactory.select(orders)
+                    .from(orders)
+                    .where(orders.member.id.contains(member.getId()))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize())
+                    .orderBy(orders.ordDt.desc())
+                    .fetch();
+        }
+
+        return mapToSearchOrderDtoDtoList(ordersDtoList);
+    }
+
     private List<SearchOrderDto> mapToSearchOrderDtoDtoList(List<Orders> ordersList) {
         return ordersList.stream()
                 .map(this::mapToOrdersDto)

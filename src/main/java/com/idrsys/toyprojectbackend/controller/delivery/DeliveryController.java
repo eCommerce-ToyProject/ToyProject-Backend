@@ -3,15 +3,22 @@ package com.idrsys.toyprojectbackend.controller.delivery;
 import com.idrsys.toyprojectbackend.dto.delivery.AddDeliveryDto;
 import com.idrsys.toyprojectbackend.dto.delivery.DeliveryDto;
 import com.idrsys.toyprojectbackend.dto.delivery.UpdateDeliveryDto;
+import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
+import com.idrsys.toyprojectbackend.excel.excel.ExcelFile;
+import com.idrsys.toyprojectbackend.excel.excel.onesheet.OneSheetExcelFile;
 import com.idrsys.toyprojectbackend.repository.delivery.DeliveryRepositoryCustom;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.idrsys.toyprojectbackend.service.DeliveryService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -32,6 +39,13 @@ public class DeliveryController {
     public Page<DeliveryDto> delivery(@RequestParam(name = "id", required = false) String id,
                                    Pageable pageable) {
         return deliveryRepositoryCustom.deliverySearch(id, pageable);
+    }
+    @GetMapping("/deliveryList/Excel")
+    public void deliveryListExcel(@RequestParam(name = "id", required = false) String id,
+                                               Pageable pageable, HttpServletResponse response) throws IOException {
+        List<DeliveryDto> deliveryDtoList =  deliveryRepositoryCustom.deliverySearchList(id, pageable);
+        ExcelFile excelFile = new OneSheetExcelFile<>(deliveryDtoList, DeliveryDto.class);
+        excelFile.write(response.getOutputStream());
     }
 
     @PostMapping("/createDelivery")

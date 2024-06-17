@@ -35,6 +35,8 @@ public class MemberDto {
                 .build();
     }
 
-
+    public String toString() {
+        return "Member [no=" + no + ", id=" + id + ", username=" + username + ", email=" + email + ", phone=" + phone + "]";
+    }
 
 }

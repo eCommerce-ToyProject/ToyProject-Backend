@@ -50,6 +50,28 @@ public class DeliveryRepositoryCustomImpl implements DeliveryRepositoryCustom{
         return new PageImpl<>(deliveryDtos, pageable, deliveryDtos.size());
     }
 
+    @Override
+    public List<DeliveryDto> deliverySearchList(String id, Pageable pageable) {
+        Member memberSearch = memberRepository.findById(id).orElseThrow();
+        Long memberNo = memberSearch.getNo();
+
+        List<Delivery> rs = jpaQueryFactory.select(delivery)
+                .from(delivery)
+                .leftJoin(delivery.member, member)
+                .fetchJoin()
+                .where(delivery.member.no.eq(memberNo))
+                .distinct()
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        List<DeliveryDto> deliveryDtos = rs.stream()
+                .map(this::mapToDeliveryDto)
+                .collect(Collectors.toList());
+
+        return deliveryDtos;
+    }
+
     private List<DeliveryDto> mapToDeliveryDtoList(List<Delivery> deliveryList){
         return deliveryList.stream()
                 .map(this::mapToDeliveryDto)

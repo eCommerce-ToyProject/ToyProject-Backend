@@ -2,15 +2,21 @@ package com.idrsys.toyprojectbackend.controller.orders;
 
 import com.idrsys.toyprojectbackend.dto.orders.AddOrdersDto;
 import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
+import com.idrsys.toyprojectbackend.excel.excel.ExcelFile;
+import com.idrsys.toyprojectbackend.excel.excel.onesheet.OneSheetExcelFile;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepositoryCustom;
 import com.idrsys.toyprojectbackend.service.OrderFacade;
 import com.idrsys.toyprojectbackend.service.OrderService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -46,6 +52,13 @@ public class OrdersController {
     @GetMapping("/myOrderTest")
     public Page<SearchOrderDto> myOrdertest(@RequestParam(name = "id",required = false) String id, Pageable pageable){
         return ordersRepositoryCustom.ordersPage(id,pageable);
+    }
+
+    @GetMapping("/myOrder/Excel")
+    public void myOrderExcel(@RequestParam(name = "id",required = false) String id, Pageable pageable, HttpServletResponse response) throws IOException {
+        List<SearchOrderDto> orderList = ordersRepositoryCustom.orderList(id, pageable);
+        ExcelFile excelFile = new OneSheetExcelFile<>(orderList, SearchOrderDto.class);
+        excelFile.write(response.getOutputStream());
     }
 
 }
