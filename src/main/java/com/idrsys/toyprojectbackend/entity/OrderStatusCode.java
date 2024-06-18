@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Table(name = "order_status_code")
 @JsonIgnoreProperties({"orders"})
-
 public class OrderStatusCode {
 
     @Id
@@ -25,4 +24,9 @@ public class OrderStatusCode {
 
     @OneToMany(mappedBy = "ord_status_cd")
     private List<Orders> orders = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "ordCd=" + ordCd + ", ordDef=" + ordDef;
+    }
 }

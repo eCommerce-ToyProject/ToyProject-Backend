@@ -55,4 +55,19 @@ public class Delivery {
     @OneToMany(mappedBy = "delivery")
     private List<Orders> orders = new ArrayList<>();
 
+    @Override
+    public String toString() {
+        return "Delivery{" +
+                "dlivNo=" + dlivNo +
+                ", dlivPlc='" + dlivPlc + '\'' +
+                ", member=" + member.getId() +
+                ", zipCode='" + zipCode + '\'' +
+                ", detailAddress='" + detailAddress + '\'' +
+                ", designation='" + designation + '\'' +
+                ", dlivCreateDate=" + dlivCreateDate +
+                ", deleted=" + deleted +
+                ", dlivDeletedDt=" + dlivDeletedDt +
+                ", dlivChangeDt=" + dlivChangeDt +
+                '}';
+    }
 }

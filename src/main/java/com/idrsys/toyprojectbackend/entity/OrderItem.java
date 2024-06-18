@@ -61,4 +61,23 @@ public class OrderItem {
     @Column(name = "item_amt_add")
     private BigDecimal iAmtAdd;
 
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "ordItemCd=" + ordItemCd +
+                ", ordQty=" + ordQty +
+                ", ordPrc=" + ordPrc +
+                ", ord_no=" + ord_no.getOrdNo() +
+                ", goods_no=" + goods_no.getGNo() +
+                ", gNm='" + gNm + '\'' +
+                ", bNo=" + bNo +
+                ", catCd=" + catCd +
+                ", item_no=" + item_no +
+                ", iNm='" + iNm + '\'' +
+                ", optVal1='" + optVal1 + '\'' +
+                ", optVal2='" + optVal2 + '\'' +
+                ", iAmtAdd=" + iAmtAdd +
+                '}';
+    }
+
 }

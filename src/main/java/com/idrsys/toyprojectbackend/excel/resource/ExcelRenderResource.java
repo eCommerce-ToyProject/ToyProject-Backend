@@ -1,6 +1,7 @@
 package com.idrsys.toyprojectbackend.excel.resource;
 
 import com.idrsys.toyprojectbackend.excel.resource.collection.PreCalculatedCellStyleMap;
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.CellStyle;
 
 import java.util.List;
@@ -11,8 +12,9 @@ public class ExcelRenderResource {
 	private PreCalculatedCellStyleMap styleMap;
 
 	// TODO dataFieldName -> excelHeaderName Map Abstraction
-	private Map<String, String> excelHeaderNames;
-	private List<String> dataFieldNames;
+	private final Map<String, String> excelHeaderNames;
+	@Getter
+    private List<String> dataFieldNames;
 
 	public ExcelRenderResource(PreCalculatedCellStyleMap styleMap,
 							   Map<String, String> excelHeaderNames, List<String> dataFieldNames) {
@@ -27,10 +29,6 @@ public class ExcelRenderResource {
 
 	public String getExcelHeaderName(String dataFieldName) {
 		return excelHeaderNames.get(dataFieldName);
-	}
-
-	public List<String> getDataFieldNames() {
-		return dataFieldNames;
 	}
 
 }

@@ -44,7 +44,7 @@ public final class OneSheetExcelFile<T> extends SXSSFExcelFile<T> {
 	public void renderExcel(List<T> data) {
 		// 1. Create sheet and renderHeader
 		sheet = wb.createSheet();
-		renderHeadersWithNewSheet(sheet, currentRowIndex++, COLUMN_START_INDEX);
+		renderHeadersWithNewSheetRowColumnSwitch(sheet, currentRowIndex++, COLUMN_START_INDEX);
 
 		if (data.isEmpty()) {
 			return;
@@ -52,7 +52,7 @@ public final class OneSheetExcelFile<T> extends SXSSFExcelFile<T> {
 
 		// 2. Render Body
 		for (Object renderedData : data) {
-			renderBody(renderedData, currentRowIndex++, COLUMN_START_INDEX);
+			renderBodyRowColumnSwitch(renderedData, currentRowIndex++, COLUMN_START_INDEX);
 		}
 	}
 

@@ -15,7 +15,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,4 +35,16 @@ public class SearchOrderDto {
     @ExcelColumn(headerName = "배송지")
     private Delivery delivery;
 
+    @Override
+    public String toString() {
+        return "SearchOrderDto{" +
+                "ordNo=" + ordNo +
+                ", ordDt=" + ordDt +
+                ", toPrc=" + toPrc +
+                ", payMn='" + payMn + '\'' +
+                ", ord_status_cd=" + ord_status_cd +
+                ", orderItem=" + orderItem +
+                ", delivery=" + delivery +
+                '}';
+    }
 }

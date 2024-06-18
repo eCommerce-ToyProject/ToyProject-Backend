@@ -50,7 +50,7 @@ public class OrdersController {
     }
 
     @GetMapping("/myOrderTest")
-    public Page<SearchOrderDto> myOrdertest(@RequestParam(name = "id",required = false) String id, Pageable pageable){
+    public Page<SearchOrderDto> myOrderTest(@RequestParam(name = "id",required = false) String id, Pageable pageable){
         return ordersRepositoryCustom.ordersPage(id,pageable);
     }
 

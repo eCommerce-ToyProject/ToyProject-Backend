@@ -59,6 +59,37 @@ public final class ExcelRenderResourceFactory {
 		}
 		return new ExcelRenderResource(styleMap, headerNamesMap, fieldNames);
 	}
+	public static ExcelRenderResource prepareRenderResourceRowColumnSwitch(Class<?> type, Workbook wb,
+																		   DataFormatDecider dataFormatDecider) {
+		PreCalculatedCellStyleMap styleMap = new PreCalculatedCellStyleMap(dataFormatDecider);
+		Map<String, String> headerNamesMap = new LinkedHashMap<>();
+		List<String> fieldNames = new ArrayList<>();
+
+		ExcelColumnStyle classDefinedHeaderStyle = getHeaderExcelColumnStyle(type);
+		ExcelColumnStyle classDefinedBodyStyle = getBodyExcelColumnStyle(type);
+
+		for (Field field : getAllFields(type)) {
+			if (field.isAnnotationPresent(ExcelColumn.class)) {
+				ExcelColumn annotation = field.getAnnotation(ExcelColumn.class);
+				styleMap.put(
+						String.class,
+						ExcelCellKey.of(field.getName(), ExcelRenderLocation.HEADER),
+						getCellStyle(decideAppliedStyleAnnotation(classDefinedHeaderStyle, annotation.headerStyle())), wb);
+				Class<?> fieldType = field.getType();
+				styleMap.put(
+						fieldType,
+						ExcelCellKey.of(field.getName(), ExcelRenderLocation.BODY),
+						getCellStyle(decideAppliedStyleAnnotation(classDefinedBodyStyle, annotation.bodyStyle())), wb);
+				fieldNames.add(field.getName());
+				headerNamesMap.put(field.getName(), annotation.headerName());
+			}
+		}
+
+		if (styleMap.isEmpty()) {
+			throw new NoExcelColumnAnnotationsException(String.format("Class %s has not @ExcelColumn at all", type));
+		}
+		return new ExcelRenderResource(styleMap, headerNamesMap, fieldNames);
+	}
 
 	private static ExcelColumnStyle getHeaderExcelColumnStyle(Class<?> clazz) {
 		Annotation annotation = getAnnotation(clazz, DefaultHeaderStyle.class);
