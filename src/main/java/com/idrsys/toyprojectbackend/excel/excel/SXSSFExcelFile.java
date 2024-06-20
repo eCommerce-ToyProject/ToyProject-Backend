@@ -1,8 +1,11 @@
 package com.idrsys.toyprojectbackend.excel.excel;
 
+import com.idrsys.toyprojectbackend.enums.OrderPay;
+import com.idrsys.toyprojectbackend.enums.OrderStatus;
 import com.idrsys.toyprojectbackend.excel.exception.ExcelInternalException;
 import com.idrsys.toyprojectbackend.excel.resource.*;
 
+import com.idrsys.toyprojectbackend.excel.utils.DataFormatterUtil;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -127,6 +130,16 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 		if (cellValue instanceof Number) {
 			Number numberValue = (Number) cellValue;
 			cell.setCellValue(numberValue.doubleValue());
+			return;
+		} else if (cellValue instanceof String) {
+			String stringValue = (String) cellValue;
+			if (OrderPay.getDefByCode(stringValue) != null) {
+				cell.setCellValue(DataFormatterUtil.formatOrderPayCode(stringValue));
+			} else if (OrderStatus.getDefByCode(stringValue) != null) {
+				cell.setCellValue(DataFormatterUtil.formatOrderStatusCode(stringValue));
+			} else {
+				cell.setCellValue(stringValue);
+			}
 			return;
 		}
 		cell.setCellValue(cellValue == null ? "" : cellValue.toString());

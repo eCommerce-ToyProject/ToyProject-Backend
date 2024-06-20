@@ -27,6 +27,6 @@ public class OrderStatusCode {
 
     @Override
     public String toString() {
-        return "ordCd=" + ordCd + ", ordDef=" + ordDef;
+        return ordCd ;
     }
 }
