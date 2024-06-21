@@ -98,7 +98,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 				field.setAccessible(true);
 				cell.setCellStyle(resource.getCellStyle(dataFieldName, ExcelRenderLocation.BODY));
 				Object cellValue = field.get(data);
-				renderCellValue(cell, cellValue);
+				renderCellValue(cell, cellValue, dataFieldName);
 			} catch (Exception e) {
 				throw new ExcelInternalException(e.getMessage(), e);
 			}
@@ -118,7 +118,8 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 				field.setAccessible(true);
 				cell.setCellStyle(resource.getCellStyle(dataFieldName, ExcelRenderLocation.BODY));
 				Object cellValue = field.get(data);
-				renderCellValue(cell, cellValue);
+				System.out.println("Field: " + dataFieldName + ", Original Value: " + cellValue);
+				renderCellValue(cell, cellValue, dataFieldName);
 			} catch (Exception e) {
 				throw new ExcelInternalException(e.getMessage(), e);
 			}
@@ -126,23 +127,23 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 		}
 	}
 
-	private void renderCellValue(Cell cell, Object cellValue) {
+	private void renderCellValue(Cell cell, Object cellValue, String dataFieldName) {
+		// 데이터 포맷팅
+		String formattedValue = DataFormatterUtil.format(dataFieldName, cellValue != null ? cellValue.toString() : "");
+
+		System.out.println("Field: " + dataFieldName + ", Original Value: " + cellValue + ", Formatted Value: " + formattedValue);
+
 		if (cellValue instanceof Number) {
 			Number numberValue = (Number) cellValue;
 			cell.setCellValue(numberValue.doubleValue());
 			return;
 		} else if (cellValue instanceof String) {
 			String stringValue = (String) cellValue;
-			if (OrderPay.getDefByCode(stringValue) != null) {
-				cell.setCellValue(DataFormatterUtil.formatOrderPayCode(stringValue));
-			} else if (OrderStatus.getDefByCode(stringValue) != null) {
-				cell.setCellValue(DataFormatterUtil.formatOrderStatusCode(stringValue));
-			} else {
-				cell.setCellValue(stringValue);
+			if(formattedValue != null){
+				DataFormatterUtil.format(dataFieldName, stringValue);
 			}
-			return;
 		}
-		cell.setCellValue(cellValue == null ? "" : cellValue.toString());
+		cell.setCellValue(formattedValue == null ? "" : formattedValue);
 	}
 
 	public void write(OutputStream stream) throws IOException {

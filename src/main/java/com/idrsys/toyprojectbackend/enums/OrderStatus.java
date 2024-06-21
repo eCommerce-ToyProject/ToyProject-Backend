@@ -23,10 +23,10 @@ public enum OrderStatus {
         return ordDef;
     }
 
-    public static String getDefByCode(String code) {
+    public static OrderStatus fromCode(String code) {
         for (OrderStatus status : OrderStatus.values()) {
             if (status.getCode().equals(code)) {
-                return status.getDef();
+                return status;
             }
         }
         return null;

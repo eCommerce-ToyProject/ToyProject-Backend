@@ -21,10 +21,10 @@ public enum OrderPay {
         return def;
     }
 
-    public static String getDefByCode(String code) {
-        for (OrderPay status : OrderPay.values()) {
-            if (status.getCode().equals(code)) {
-                return status.getDef();
+    public static OrderPay fromCode(String code) {
+        for (OrderPay pay : OrderPay.values()) {
+            if (pay.getCode().equals(code)) {
+                return pay;
             }
         }
         return null;
