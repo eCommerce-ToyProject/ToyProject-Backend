@@ -62,7 +62,7 @@ Orders {
     @JoinColumn(name = "dliv_no")
     private Delivery delivery;
 
-    @OneToMany(mappedBy = "ord_no", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ordNo", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 
 }

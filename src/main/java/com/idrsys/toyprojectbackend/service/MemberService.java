@@ -7,6 +7,7 @@ import com.idrsys.toyprojectbackend.entity.Member;
 import jakarta.servlet.http.Cookie;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -28,4 +29,6 @@ public interface MemberService {
     boolean checkIdDuplicate(String id);
 
     Optional<Member> getMemberInfo(String id);
+
+    List<Member> getMembers();
 }

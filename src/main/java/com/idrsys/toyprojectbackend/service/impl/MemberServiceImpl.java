@@ -176,4 +176,9 @@ public class MemberServiceImpl implements MemberService {
     public Optional<Member> getMemberInfo(String id) {
         return memberRepository.findById(id);
     }
+
+    @Override
+    public List<Member> getMembers() {
+        return memberRepository.findAll();
+    }
 }

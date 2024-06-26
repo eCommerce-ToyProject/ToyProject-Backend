@@ -4,7 +4,6 @@ import com.idrsys.toyprojectbackend.entity.Member;
 import lombok.*;
 
 @Getter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

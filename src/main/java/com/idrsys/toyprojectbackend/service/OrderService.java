@@ -157,7 +157,7 @@ public class OrderService {
         return OrderItem.builder()
                 .ordQty(quantity)
                 .ordPrc(orderPrice)
-                .ord_no(orders)
+                .ordNo(orders)
                 .goods_no(goods)
                 .gNm(goods.getGName())
                 .bNo(goods.getBNo())

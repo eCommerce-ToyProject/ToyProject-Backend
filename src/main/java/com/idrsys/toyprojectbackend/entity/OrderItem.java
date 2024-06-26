@@ -30,7 +30,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "ord_no")
-    private Orders ord_no;
+    private Orders ordNo;
 
     @ManyToOne
     @JoinColumn(name = "goods_no")
@@ -67,7 +67,7 @@ public class OrderItem {
                 "ordItemCd=" + ordItemCd +
                 ", ordQty=" + ordQty +
                 ", ordPrc=" + ordPrc +
-                ", ord_no=" + ord_no.getOrdNo() +
+                ", ord_no=" + ordNo.getOrdNo() +
                 ", goods_no=" + goods_no.getGNo() +
                 ", gNm='" + gNm + '\'' +
                 ", bNo=" + bNo +

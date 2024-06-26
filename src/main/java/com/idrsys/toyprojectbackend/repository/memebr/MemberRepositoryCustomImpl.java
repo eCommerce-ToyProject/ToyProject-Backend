@@ -1,6 +1,7 @@
 package com.idrsys.toyprojectbackend.repository.memebr;
 
 import com.idrsys.toyprojectbackend.dto.member.MemberDto;
+import com.idrsys.toyprojectbackend.dto.member.MemberSearchDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,21 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
                         ,member.phone))
                 .from(member)
                 .where(member.id.contains(id))
+                .fetch();
+        return rs;
+    }
+
+    @Override
+    public List<MemberSearchDto> membersList() {
+        List<MemberSearchDto> rs = jpaQueryFactory.select(
+                        Projections.fields(MemberSearchDto.class,
+                                member.no
+                                ,member.id
+                                ,member.username
+                                ,member.email
+                                ,member.phone
+                                ,member.roles))
+                .from(member)
                 .fetch();
         return rs;
     }

@@ -131,8 +131,6 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 		// 데이터 포맷팅
 		String formattedValue = DataFormatterUtil.format(dataFieldName, cellValue != null ? cellValue.toString() : "");
 
-		System.out.println("Field: " + dataFieldName + ", Original Value: " + cellValue + ", Formatted Value: " + formattedValue);
-
 		if (cellValue instanceof Number) {
 			Number numberValue = (Number) cellValue;
 			cell.setCellValue(numberValue.doubleValue());

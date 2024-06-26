@@ -3,34 +3,36 @@ package com.idrsys.toyprojectbackend.excel.utils;
 import com.idrsys.toyprojectbackend.enums.OrderPay;
 import com.idrsys.toyprojectbackend.enums.OrderStatus;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataFormatterUtil {
-    private static final Map<String, DataFormatter> formatters = new HashMap<>();
+    private static final Map<String, Class<?>> fieldEnumMapping = new HashMap<>();
 
     static {
-        formatters.put("payMn", code -> {
-            OrderPay pay = OrderPay.fromCode(code);
-            return pay != null ? pay.getDef() : code;
-        });
-    }
-
-    static {
-        formatters.put("ord_status_cd", code -> {
-            OrderStatus status = OrderStatus.fromCode(code);
-            return status != null ? status.getDef() : code;
-        });
+        fieldEnumMapping.put("payMn", OrderPay.class);
+        fieldEnumMapping.put("ord_status_cd", OrderStatus.class);
     }
 
     public static String format(String fieldName, String code) {
-        DataFormatter formatter = formatters.get(fieldName);
-        if (formatter != null) {
-            System.out.println("Formatting field: " + fieldName + " with code: " + code);
-            return formatter.format(code);
-        } else {
-            System.out.println("No formatter found for field: " + fieldName);
-            return code;
+        if (code == null) return null;
+        Class<?> enumClass = fieldEnumMapping.get(fieldName);
+
+        if (enumClass != null) {
+            try {
+                Method fromCodeMethod = enumClass.getMethod("fromCode", String.class);
+                Object enumInstance = fromCodeMethod.invoke(null, code);
+                if (enumInstance != null) {
+                    Method getDefMethod = enumClass.getMethod("getDef");
+                    return (String) getDefMethod.invoke(enumInstance);
+                }
+            } catch (Exception e) {
+                // Log the error or handle it as appropriate
+                e.printStackTrace();
+            }
         }
+
+        return code;
     }
 }

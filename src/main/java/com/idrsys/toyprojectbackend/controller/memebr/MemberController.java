@@ -3,6 +3,7 @@ package com.idrsys.toyprojectbackend.controller.memebr;
 import com.idrsys.toyprojectbackend.config.jwt.JwtTokenProvider;
 import com.idrsys.toyprojectbackend.dto.jwt.JwtToken;
 import com.idrsys.toyprojectbackend.dto.member.MemberDto;
+import com.idrsys.toyprojectbackend.dto.member.MemberSearchDto;
 import com.idrsys.toyprojectbackend.dto.member.SignInDto;
 import com.idrsys.toyprojectbackend.dto.member.SignUpDto;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
@@ -129,6 +130,16 @@ public class MemberController {
         refreshToken.setHttpOnly(true);
         refreshToken.setSecure(true);
         response.addCookie(refreshToken);
+    }
+
+    @GetMapping("/memberList/Excel")
+    public void memberListExcel(HttpServletResponse response){
+
+    }
+
+    @GetMapping("/memberList")
+    public List<MemberSearchDto> memberList(){
+        return memberRepositoryCustom.membersList();
     }
 
 }

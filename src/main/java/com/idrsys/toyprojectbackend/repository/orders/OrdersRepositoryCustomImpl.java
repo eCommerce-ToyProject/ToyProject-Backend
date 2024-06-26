@@ -87,7 +87,7 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
         return new SearchOrderDto(
                 orders.getOrdNo(),
                 orders.getOrdDt(),
-                orders.getToPrc(),
+                orders.getToPrc().longValueExact(),
                 orders.getPayMn(),
                 orders.getOrd_status_cd(),
                 orders.getOrderItems(),
