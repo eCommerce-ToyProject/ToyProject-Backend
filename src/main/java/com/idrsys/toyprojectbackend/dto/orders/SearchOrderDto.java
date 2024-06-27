@@ -5,6 +5,8 @@ import com.idrsys.toyprojectbackend.dto.orders.OrderStatusCodeDto;
 import com.idrsys.toyprojectbackend.entity.Delivery;
 import com.idrsys.toyprojectbackend.entity.OrderItem;
 import com.idrsys.toyprojectbackend.entity.OrderStatusCode;
+import com.idrsys.toyprojectbackend.enums.OrderPay;
+import com.idrsys.toyprojectbackend.enums.OrderStatus;
 import com.idrsys.toyprojectbackend.excel.DefaultHeaderStyle;
 import com.idrsys.toyprojectbackend.excel.EnumMapping;
 import com.idrsys.toyprojectbackend.excel.ExcelColumn;
@@ -32,8 +34,10 @@ public class SearchOrderDto {
     @ExcelColumn(headerName = "주문 가격")
     private Long toPrc;
     @ExcelColumn(headerName = "결재 수단")
+    @EnumMapping(enumClass = OrderPay.class)
     private String payMn;
     @ExcelColumn(headerName = "주문 상태")
+    @EnumMapping(enumClass = OrderStatus.class)
     private OrderStatusCode ord_status_cd;
     @ExcelColumn(headerName = "주문 상품")
     private List<OrderItem> orderItem;

@@ -118,7 +118,6 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 				field.setAccessible(true);
 				cell.setCellStyle(resource.getCellStyle(dataFieldName, ExcelRenderLocation.BODY));
 				Object cellValue = field.get(data);
-				System.out.println("Field: " + dataFieldName + ", Original Value: " + cellValue);
 				renderCellValue(cell, cellValue, dataFieldName);
 			} catch (Exception e) {
 				throw new ExcelInternalException(e.getMessage(), e);
@@ -140,6 +139,11 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 			if(formattedValue != null){
 				DataFormatterUtil.format(dataFieldName, stringValue);
 			}
+		} else if (cellValue instanceof Date) {
+			Date dateValue = (Date) cellValue;
+			cell.setCellValue(dateValue);
+		} else if(cellValue instanceof Boolean) {
+
 		}
 		cell.setCellValue(formattedValue == null ? "" : formattedValue);
 	}
@@ -148,6 +152,7 @@ public abstract class SXSSFExcelFile<T> implements ExcelFile<T> {
 		wb.write(stream);
 		wb.close();
 		wb.dispose();
+		stream.flush();
 		stream.close();
 	}
 

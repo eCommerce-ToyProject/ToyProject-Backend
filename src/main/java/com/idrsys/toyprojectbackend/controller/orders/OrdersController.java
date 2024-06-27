@@ -5,6 +5,7 @@ import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
 import com.idrsys.toyprojectbackend.excel.excel.ExcelFile;
 import com.idrsys.toyprojectbackend.excel.excel.onesheet.OneSheetExcelFile;
 import com.idrsys.toyprojectbackend.excel.excel.onesheet.OneSheetExcelFileSwitchRC;
+import com.idrsys.toyprojectbackend.excel.utils.DataFormatterUtil;
 import com.idrsys.toyprojectbackend.repository.orders.OrdersRepositoryCustom;
 import com.idrsys.toyprojectbackend.service.OrderFacade;
 import com.idrsys.toyprojectbackend.service.OrderService;
@@ -58,7 +59,10 @@ public class OrdersController {
     @GetMapping("/myOrder/Excel")
     public void myOrderExcel(@RequestParam(name = "id",required = false) String id, Pageable pageable, HttpServletResponse response) throws IOException {
         List<SearchOrderDto> orderList = ordersRepositoryCustom.orderList(id, pageable);
+        DataFormatterUtil.scanAndRegisterMappings(SearchOrderDto.class);
         ExcelFile excelFile = new OneSheetExcelFileSwitchRC(orderList, SearchOrderDto.class);
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=" + "테스트" + ".xlsx");
         excelFile.write(response.getOutputStream());
     }
 
