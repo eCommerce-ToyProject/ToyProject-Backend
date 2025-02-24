@@ -143,22 +143,21 @@ public class OrdersRepositoryCustomImpl implements OrdersRepositoryCustom{
         if(member == null){
             return null;
         }else{
-
             ordersList = jpaQueryFactory.select(
-                    Projections.fields(SearchOrderDto.class,
-                            orders.ordNo
-                            ,orders.ordDt
-                            ,orders.toPrc
-                            ,orders.payMn
-                            ,orders.ord_status_cd
-                            , ExpressionUtils.as(
-                                    Projections.list(orders.orderItems), "orderItem")
-                            ))
-                    .from(orders)
-                    .where(orders.member.id.contains(member.getId()))
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
-                    .fetch();
+                Projections.fields(SearchOrderDto.class,
+                    orders.ordNo,
+                    orders.ordDt,
+                    orders.toPrc,
+                    orders.payMn,
+                    orders.ord_status_cd,
+                     ExpressionUtils.as(
+                            Projections.list(orders.orderItems), "orderItem")
+                    ))
+                .from(orders)
+                .where(orders.member.id.contains(member.getId()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
         }
 
 

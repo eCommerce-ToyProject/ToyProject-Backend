@@ -5,7 +5,6 @@ import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 //@Builder
 @Component
@@ -15,7 +14,7 @@ public class GoodsItemService {
     private GoodsItemRepository goodsItemRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public Long updateQty(GoodsItem item, Long quantity) {
+    public void updateQty(GoodsItem item, Long quantity) {
         Long updatedIQty = item.getIQty() - quantity;
         Long updatedISaveQty = item.getISaveQty();
 
@@ -40,6 +39,5 @@ public class GoodsItemService {
                 .build();
 
         goodsItemRepository.save(updatedItem);
-        return updatedItem.getNo();
     }
 }
