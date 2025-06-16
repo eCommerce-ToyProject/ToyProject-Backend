@@ -3,449 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC 라이브 스트리밍 (권장)</title>
+    <title>WebRTC Live Demo</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
-        .container { max-width: 1000px; margin: 0 auto; }
-        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        video { width: 100%; max-width: 400px; border: 2px solid #ddd; border-radius: 8px; }
-        button { padding: 10px 20px; margin: 5px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        button.danger { background: #dc3545; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .info { font-size: 12px; color: #666; margin-top: 10px; }
-        .room-id { background: #e9ecef; padding: 10px; border-radius: 5px; font-family: monospace; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls input, .controls select, .controls button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+            font-size: 14px;
+        }
+
+        .controls button {
+            background: #007bff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #0056b3;
+        }
+
+        .controls button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .video-section {
+            background: #333;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .video-section h3 {
+            margin-bottom: 15px;
+            color: #007bff;
+        }
+
+        video {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            background: #000;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #444;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .viewer-list {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .viewer-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #555;
+        }
+
+        .viewer-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .role-button {
+            padding: 15px 30px;
+            border: 2px solid #007bff;
+            background: transparent;
+            color: #007bff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-button.active {
+            background: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="success">
-            ✅ <strong>WebRTC 방식:</strong> 실제 라이브 스트리밍에 사용되는 표준 기술!<br>
-            • 저지연 (100-300ms)<br>
-            • 고품질 (1080p+ 지원)<br>
-            • P2P 직접 연결로 서버 부하 최소화
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>🎥 WebRTC Live Streaming Demo</h1>
+        <p>실시간 1:N 라이브 스트리밍</p>
+    </div>
 
-        <div class="section">
-            <h3>🎛️ 방 설정</h3>
-            <div>
-                <label>방 ID: </label>
-                <input type="text" id="roomId" value="live-room-1" placeholder="방 ID 입력">
-                <button onclick="generateRoomId()">랜덤 생성</button>
-            </div>
-            <div class="room-id" id="shareableLink">
-                공유 링크: <span id="linkText">-</span>
-                <button onclick="copyLink()">복사</button>
-            </div>
-        </div>
+    <div class="role-selector">
+        <button class="role-button" id="broadcasterBtn">📹 방송하기</button>
+        <button class="role-button" id="viewerBtn">👀 시청하기</button>
+    </div>
 
-        <div class="grid">
-            <!-- 방송자 (송신) -->
-            <div class="section">
-                <h3>📹 방송자 (송신)</h3>
-                <video id="localVideo" autoplay muted></video>
-                <div>
-                    <button id="startBroadcast" onclick="startBroadcasting()">방송 시작</button>
-                    <button id="stopBroadcast" onclick="stopBroadcasting()" disabled>방송 중지</button>
-                </div>
-                <div>
-                    <label>화질: </label>
-                    <select id="videoQuality">
-                        <option value="720p">720p (권장)</option>
-                        <option value="1080p">1080p (고화질)</option>
-                        <option value="480p">480p (저화질)</option>
-                    </select>
-                </div>
-                <div class="info" id="broadcasterInfo">대기 중...</div>
-            </div>
+    <div class="controls">
+        <input type="text" id="roomId" placeholder="방 ID 입력" value="room123">
+        <input type="text" id="userId" placeholder="사용자 ID 입력" value="">
+        <select id="videoQuality">
+            <option value="720p">720p (HD)</option>
+            <option value="480p">480p</option>
+            <option value="360p">360p</option>
+        </select>
+        <button id="connectBtn">연결</button>
+        <button id="disconnectBtn" disabled>연결 해제</button>
+    </div>
 
-            <!-- 시청자 (수신) -->
-            <div class="section">
-                <h3>📺 시청자 (수신)</h3>
-                <video id="remoteVideo" autoplay controls></video>
-                <div>
-                    <button onclick="joinAsViewer()">시청 시작</button>
-                    <button onclick="leaveRoom()">나가기</button>
-                </div>
-                <div class="info" id="viewerInfo">연결 대기 중...</div>
+    <div class="video-container">
+        <div class="video-section">
+            <h3>📹 내 화면</h3>
+            <video id="localVideo" muted autoplay playsinline></video>
+            <div style="margin-top: 10px;">
+                <button id="toggleVideo">카메라 끄기</button>
+                <button id="toggleAudio">마이크 끄기</button>
             </div>
         </div>
 
-        <!-- 시청자 목록 -->
-        <div class="section">
-            <h3>👥 현재 시청자 목록</h3>
-            <div id="viewersList">연결된 시청자가 없습니다.</div>
-        </div>
-
-        <!-- 기술 설명 -->
-        <div class="section">
-            <h3>🔧 WebRTC 구현 방법</h3>
-            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>// 1. 방송자: 로컬 스트림 획득
-const stream = await navigator.mediaDevices.getUserMedia({
-    video: { width: 1280, height: 720 },
-    audio: true
-});
-
-// 2. RTCPeerConnection 생성
-const peerConnection = new RTCPeerConnection({
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' }
-    ]
-});
-
-// 3. 스트림 추가
-stream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, stream);
-});
-
-// 4. WebSocket으로 시그널링 (SDP 교환)
-// offer -> answer -> ICE candidates</code></pre>
+        <div class="video-section">
+            <h3>📺 방송 화면</h3>
+            <video id="remoteVideo" autoplay playsinline></video>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <script>
-        let localStream = null;
-        let stompClient = null;
-        let peerConnections = new Map(); // 여러 시청자 관리
-        let isBroadcasting = false;
-        let isViewing = false;
-        let currentRoomId = null;
+    <div class="viewer-list">
+        <h3>👥 시청자 목록</h3>
+        <div id="viewersList">연결된 시청자가 없습니다.</div>
+    </div>
 
-        // STUN 서버 설정 (실제로는 TURN 서버도 필요)
-        const rtcConfig = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
+    <div class="status" id="status">
+        상태: 연결 대기중...
+    </div>
+</div>
 
-        // WebSocket 연결
-        function connectSignaling() {
-            const socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
-            stompClient.debug = null;
+<script>
+    class WebRTCLive {
+        constructor() {
+            this.ws = null;
+            this.pc = null;
+            this.localStream = null;
+            this.remoteStream = null;
+            this.isBroadcaster = false;
+            this.roomId = null;
+            this.userId = null;
+            this.viewers = new Set();
 
-            stompClient.connect({}, function(frame) {
-                console.log('Signaling connected: ' + frame);
-
-                // 시그널링 메시지 수신
-                stompClient.subscribe(`/topic/webrtc/${currentRoomId}`, function(message) {
-                    const data = JSON.parse(message.body);
-                    handleSignalingMessage(data);
-                });
-
-                updateInfo();
-            });
+            this.init();
         }
 
-        async function startBroadcasting() {
+        init() {
+            // 랜덤 사용자 ID 생성
+            document.getElementById('userId').value = 'user_' + Math.random().toString(36).substr(2, 9);
+
+            // 이벤트 리스너 등록
+            document.getElementById('broadcasterBtn').addEventListener('click', () => this.selectRole(true));
+            document.getElementById('viewerBtn').addEventListener('click', () => this.selectRole(false));
+            document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+            document.getElementById('disconnectBtn').addEventListener('click', () => this.disconnect());
+            document.getElementById('toggleVideo').addEventListener('click', () => this.toggleVideo());
+            document.getElementById('toggleAudio').addEventListener('click', () => this.toggleAudio());
+        }
+
+        selectRole(broadcaster) {
+            this.isBroadcaster = broadcaster;
+
+            // UI 업데이트
+            document.getElementById('broadcasterBtn').classList.toggle('active', broadcaster);
+            document.getElementById('viewerBtn').classList.toggle('active', !broadcaster);
+
+            const localSection = document.querySelector('.video-section:first-child h3');
+            localSection.textContent = broadcaster ? '📹 내 방송' : '📹 내 화면 (미리보기)';
+
+            this.updateStatus(`역할 선택: ${broadcaster ? '방송자' : '시청자'}`);
+        }
+
+        async connect() {
             try {
-                currentRoomId = document.getElementById('roomId').value;
-                if (!currentRoomId) {
-                    alert('방 ID를 입력하세요.');
+                this.roomId = document.getElementById('roomId').value.trim();
+                this.userId = document.getElementById('userId').value.trim();
+
+                if (!this.roomId || !this.userId) {
+                    alert('방 ID와 사용자 ID를 입력해주세요.');
                     return;
                 }
 
-                // 카메라/마이크 접근
-                const quality = document.getElementById('videoQuality').value;
-                const constraints = getVideoConstraints(quality);
+                this.updateStatus('연결 중...');
 
-                localStream = await navigator.mediaDevices.getUserMedia(constraints);
-                document.getElementById('localVideo').srcObject = localStream;
+                // WebSocket 연결
+                await this.connectWebSocket();
 
-                // WebSocket 시그널링 서버 연결
-                connectSignaling();
+                // 미디어 스트림 초기화
+                if (this.isBroadcaster) {
+                    await this.initializeLocalStream();
+                }
 
-                isBroadcasting = true;
-                document.getElementById('startBroadcast').disabled = true;
-                document.getElementById('stopBroadcast').disabled = false;
-                
-                updateShareableLink();
-                updateInfo('방송 시작됨. 시청자 연결 대기 중...');
+                // WebRTC 연결 초기화
+                this.initializePeerConnection();
+
+                // 방 입장
+                this.joinRoom();
+
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
 
             } catch (error) {
-                console.error('방송 시작 실패:', error);
-                alert('방송 시작에 실패했습니다: ' + error.message);
+                console.error('연결 실패:', error);
+                this.updateStatus('연결 실패: ' + error.message);
             }
         }
 
-        function getVideoConstraints(quality) {
+        async connectWebSocket() {
+            return new Promise((resolve, reject) => {
+                // WebSocket 서버 주소 (실제 서버 주소로 변경 필요)
+                this.ws = new WebSocket('ws://localhost:8080/signaling');
+
+                this.ws.onopen = () => {
+                    this.updateStatus('WebSocket 연결됨');
+                    resolve();
+                };
+
+                this.ws.onmessage = (event) => {
+                    this.handleSignalingMessage(JSON.parse(event.data));
+                };
+
+                this.ws.onclose = () => {
+                    this.updateStatus('WebSocket 연결 끊어짐');
+                };
+
+                this.ws.onerror = (error) => {
+                    console.error('WebSocket 오류:', error);
+                    reject(error);
+                };
+            });
+        }
+
+        async initializeLocalStream() {
+            const quality = document.getElementById('videoQuality').value;
+
             const constraints = {
-                video: true,
+                video: this.getVideoConstraints(quality),
                 audio: true
             };
 
-            switch(quality) {
-                case '1080p':
-                    constraints.video = { width: 1920, height: 1080, frameRate: 30 };
-                    break;
-                case '720p':
-                    constraints.video = { width: 1280, height: 720, frameRate: 30 };
-                    break;
-                case '480p':
-                    constraints.video = { width: 854, height: 480, frameRate: 30 };
-                    break;
-            }
-
-            return constraints;
-        }
-
-        async function joinAsViewer() {
             try {
-                currentRoomId = document.getElementById('roomId').value;
-                if (!currentRoomId) {
-                    alert('방 ID를 입력하세요.');
-                    return;
-                }
-
-                connectSignaling();
-                
-                // 방송자에게 연결 요청
-                sendSignalingMessage({
-                    type: 'join-room',
-                    roomId: currentRoomId,
-                    role: 'viewer'
-                });
-
-                isViewing = true;
-                updateInfo('방송자 연결 요청 중...', 'viewer');
-
+                this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                document.getElementById('localVideo').srcObject = this.localStream;
+                this.updateStatus('카메라/마이크 활성화됨');
             } catch (error) {
-                console.error('시청 시작 실패:', error);
-                alert('시청 시작에 실패했습니다: ' + error.message);
+                console.error('미디어 접근 실패:', error);
+                throw new Error('카메라/마이크 접근 권한이 필요합니다.');
             }
         }
 
-        async function handleSignalingMessage(data) {
-            console.log('Signaling message:', data);
-
-            switch(data.type) {
-                case 'join-room':
-                    if (isBroadcasting) {
-                        await handleViewerJoin(data.viewerId);
-                    }
-                    break;
-
-                case 'offer':
-                    if (isViewing) {
-                        await handleOffer(data);
-                    }
-                    break;
-
-                case 'answer':
-                    if (isBroadcasting) {
-                        await handleAnswer(data);
-                    }
-                    break;
-
-                case 'ice-candidate':
-                    await handleIceCandidate(data);
-                    break;
-
-                case 'viewer-left':
-                    handleViewerLeft(data.viewerId);
-                    break;
-            }
+        getVideoConstraints(quality) {
+            const constraints = {
+                '720p': { width: 1280, height: 720, frameRate: 30 },
+                '480p': { width: 854, height: 480, frameRate: 30 },
+                '360p': { width: 640, height: 360, frameRate: 30 }
+            };
+            return constraints[quality] || constraints['720p'];
         }
 
-        async function handleViewerJoin(viewerId) {
-            // 새로운 시청자를 위한 PeerConnection 생성
-            const peerConnection = new RTCPeerConnection(rtcConfig);
-            peerConnections.set(viewerId, peerConnection);
+        initializePeerConnection() {
+            const config = {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    // TURN 서버 추가 가능 (실제 운영시 필요)
+                ]
+            };
 
-            // 로컬 스트림 추가
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
+            this.pc = new RTCPeerConnection(config);
 
-            // ICE candidate 처리
-            peerConnection.onicecandidate = (event) => {
+            // ICE 후보 처리
+            this.pc.onicecandidate = (event) => {
                 if (event.candidate) {
-                    sendSignalingMessage({
-                        type: 'ice-candidate',
-                        candidate: event.candidate,
-                        viewerId: viewerId
+                    this.sendSignalingMessage('ice-candidate', {
+                        candidate: event.candidate
                     });
                 }
             };
 
-            // Offer 생성 및 전송
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-
-            sendSignalingMessage({
-                type: 'offer',
-                offer: offer,
-                viewerId: viewerId
-            });
-
-            updateViewersList();
-            updateInfo(`방송 중... 연결된 시청자: ${peerConnections.size}명`);
-        }
-
-        async function handleOffer(data) {
-            const peerConnection = new RTCPeerConnection(rtcConfig);
-            
-            // 원격 스트림 수신 처리
-            peerConnection.ontrack = (event) => {
+            // 원격 스트림 처리
+            this.pc.ontrack = (event) => {
+                console.log('원격 스트림 수신:', event.streams[0]);
                 document.getElementById('remoteVideo').srcObject = event.streams[0];
-                updateInfo('방송 수신 중...', 'viewer');
+                this.updateStatus('방송 수신 중...');
             };
 
-            // ICE candidate 처리
-            peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendSignalingMessage({
-                        type: 'ice-candidate',
-                        candidate: event.candidate,
-                        viewerId: 'viewer-' + Date.now()
-                    });
-                }
+            this.pc.onconnectionstatechange = () => {
+                this.updateStatus(`연결 상태: ${this.pc.connectionState}`);
             };
 
-            // Offer 설정 및 Answer 생성
-            await peerConnection.setRemoteDescription(data.offer);
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-
-            sendSignalingMessage({
-                type: 'answer',
-                answer: answer,
-                viewerId: data.viewerId
-            });
-
-            peerConnections.set('broadcaster', peerConnection);
-        }
-
-        async function handleAnswer(data) {
-            const peerConnection = peerConnections.get(data.viewerId);
-            if (peerConnection) {
-                await peerConnection.setRemoteDescription(data.answer);
-            }
-        }
-
-        async function handleIceCandidate(data) {
-            const peerConnection = isBroadcasting 
-                ? peerConnections.get(data.viewerId)
-                : peerConnections.get('broadcaster');
-                
-            if (peerConnection) {
-                await peerConnection.addIceCandidate(data.candidate);
-            }
-        }
-
-        function handleViewerLeft(viewerId) {
-            const peerConnection = peerConnections.get(viewerId);
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnections.delete(viewerId);
-                updateViewersList();
-                updateInfo(`방송 중... 연결된 시청자: ${peerConnections.size}명`);
-            }
-        }
-
-        function sendSignalingMessage(message) {
-            if (stompClient && stompClient.connected) {
-                stompClient.send(`/app/webrtc/signal/${currentRoomId}`, {}, JSON.stringify(message));
-            }
-        }
-
-        function stopBroadcasting() {
-            // 모든 PeerConnection 종료
-            peerConnections.forEach(pc => pc.close());
-            peerConnections.clear();
-
-            // 로컬 스트림 정지
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-
-            // WebSocket 연결 종료
-            if (stompClient) {
-                stompClient.disconnect();
-            }
-
-            isBroadcasting = false;
-            document.getElementById('startBroadcast').disabled = false;
-            document.getElementById('stopBroadcast').disabled = true;
-            updateInfo('방송 종료됨');
-            updateViewersList();
-        }
-
-        function leaveRoom() {
-            // PeerConnection 종료
-            peerConnections.forEach(pc => pc.close());
-            peerConnections.clear();
-
-            // WebSocket 연결 종료
-            if (stompClient) {
-                sendSignalingMessage({
-                    type: 'viewer-left',
-                    viewerId: 'viewer-' + Date.now()
+            // 로컬 스트림을 피어 연결에 추가 (방송자만)
+            if (this.localStream && this.isBroadcaster) {
+                this.localStream.getTracks().forEach(track => {
+                    this.pc.addTrack(track, this.localStream);
                 });
-                stompClient.disconnect();
             }
-
-            isViewing = false;
-            document.getElementById('remoteVideo').srcObject = null;
-            updateInfo('연결 종료됨', 'viewer');
         }
 
-        function generateRoomId() {
-            const roomId = 'live-' + Math.random().toString(36).substr(2, 9);
-            document.getElementById('roomId').value = roomId;
-            updateShareableLink();
-        }
-
-        function updateShareableLink() {
-            const roomId = document.getElementById('roomId').value;
-            const link = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-            document.getElementById('linkText').textContent = link;
-        }
-
-        function copyLink() {
-            const linkText = document.getElementById('linkText').textContent;
-            navigator.clipboard.writeText(linkText).then(() => {
-                alert('링크가 복사되었습니다!');
+        joinRoom() {
+            this.sendSignalingMessage('join-room', {
+                isBroadcaster: this.isBroadcaster
             });
         }
 
-        function updateInfo(message, type = 'broadcaster') {
-            const element = type === 'viewer' 
-                ? document.getElementById('viewerInfo')
-                : document.getElementById('broadcasterInfo');
-            element.textContent = message;
+        async handleSignalingMessage(message) {
+            console.log('시그널링 메시지 수신:', message);
+
+            try {
+                switch (message.type) {
+                    case 'room-joined':
+                        this.updateStatus(`방 "${this.roomId}" 입장 완료`);
+                        this.updateViewersList(message.data.viewers);
+                        break;
+
+                    case 'user-joined':
+                        this.updateStatus(`${message.data.userId}님이 입장했습니다.`);
+                        this.viewers.add(message.data.userId);
+                        this.updateViewersList(Array.from(this.viewers));
+
+                        // 방송자인 경우 offer 생성
+                        if (this.isBroadcaster) {
+                            await this.createOffer();
+                        }
+                        break;
+
+                    case 'user-left':
+                        this.updateStatus(`${message.data.userId}님이 나갔습니다.`);
+                        this.viewers.delete(message.data.userId);
+                        this.updateViewersList(Array.from(this.viewers));
+                        break;
+
+                    case 'offer':
+                        await this.handleOffer(message.data.offer);
+                        break;
+
+                    case 'answer':
+                        await this.handleAnswer(message.data.answer);
+                        break;
+
+                    case 'ice-candidate':
+                        await this.handleIceCandidate(message.data.candidate);
+                        break;
+
+                    case 'error':
+                        this.updateStatus('오류: ' + message.data.message);
+                        break;
+                }
+            } catch (error) {
+                console.error('시그널링 메시지 처리 오류:', error);
+            }
         }
 
-        function updateViewersList() {
-            const count = peerConnections.size;
-            const element = document.getElementById('viewersList');
-            
-            if (count === 0) {
-                element.textContent = '연결된 시청자가 없습니다.';
+        async createOffer() {
+            if (!this.pc) return;
+
+            try {
+                const offer = await this.pc.createOffer();
+                await this.pc.setLocalDescription(offer);
+
+                this.sendSignalingMessage('offer', {
+                    offer: offer
+                });
+
+                this.updateStatus('Offer 전송됨');
+            } catch (error) {
+                console.error('Offer 생성 실패:', error);
+            }
+        }
+
+        async handleOffer(offer) {
+            if (!this.pc) return;
+
+            try {
+                await this.pc.setRemoteDescription(offer);
+
+                const answer = await this.pc.createAnswer();
+                await this.pc.setLocalDescription(answer);
+
+                this.sendSignalingMessage('answer', {
+                    answer: answer
+                });
+
+                this.updateStatus('Answer 전송됨');
+            } catch (error) {
+                console.error('Offer 처리 실패:', error);
+            }
+        }
+
+        async handleAnswer(answer) {
+            if (!this.pc) return;
+
+            try {
+                await this.pc.setRemoteDescription(answer);
+                this.updateStatus('Answer 수신됨 - 연결 완료');
+            } catch (error) {
+                console.error('Answer 처리 실패:', error);
+            }
+        }
+
+        async handleIceCandidate(candidate) {
+            if (!this.pc) return;
+
+            try {
+                await this.pc.addIceCandidate(candidate);
+            } catch (error) {
+                console.error('ICE 후보 추가 실패:', error);
+            }
+        }
+
+        sendSignalingMessage(type, data = {}) {
+            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                const message = {
+                    type: type,
+                    roomId: this.roomId,
+                    userId: this.userId,
+                    data: data
+                };
+                this.ws.send(JSON.stringify(message));
+            }
+        }
+
+        toggleVideo() {
+            if (this.localStream) {
+                const videoTrack = this.localStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    videoTrack.enabled = !videoTrack.enabled;
+                    document.getElementById('toggleVideo').textContent =
+                        videoTrack.enabled ? '카메라 끄기' : '카메라 켜기';
+                }
+            }
+        }
+
+        toggleAudio() {
+            if (this.localStream) {
+                const audioTrack = this.localStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = !audioTrack.enabled;
+                    document.getElementById('toggleAudio').textContent =
+                        audioTrack.enabled ? '마이크 끄기' : '마이크 켜기';
+                }
+            }
+        }
+
+        updateViewersList(viewers) {
+            const viewersListEl = document.getElementById('viewersList');
+            if (viewers && viewers.length > 0) {
+                viewersListEl.innerHTML = viewers.map(viewer =>
+                    `<div class="viewer-item">👤 ${viewer}</div>`
+                ).join('');
             } else {
-                element.innerHTML = `<strong>${count}명의 시청자가 연결됨</strong>`;
+                viewersListEl.innerHTML = '연결된 시청자가 없습니다.';
             }
         }
 
-        // URL 파라미터로 방 ID 자동 입력
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomParam = urlParams.get('room');
-            if (roomParam) {
-                document.getElementById('roomId').value = roomParam;
-                updateShareableLink();
-            }
-        };
+        updateStatus(message) {
+            const now = new Date().toLocaleTimeString();
+            document.getElementById('status').textContent = `[${now}] ${message}`;
+            console.log(message);
+        }
 
-        // 페이지 언로드 시 정리
-        window.addEventListener('beforeunload', function() {
-            if (isBroadcasting) stopBroadcasting();
-            if (isViewing) leaveRoom();
-        });
-    </script>
+        disconnect() {
+            // 스트림 정리
+            if (this.localStream) {
+                this.localStream.getTracks().forEach(track => track.stop());
+                this.localStream = null;
+            }
+
+            // 피어 연결 정리
+            if (this.pc) {
+                this.pc.close();
+                this.pc = null;
+            }
+
+            // WebSocket 정리
+            if (this.ws) {
+                this.ws.close();
+                this.ws = null;
+            }
+
+            // UI 초기화
+            document.getElementById('localVideo').srcObject = null;
+            document.getElementById('remoteVideo').srcObject = null;
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+
+            this.updateStatus('연결 해제됨');
+            this.updateViewersList([]);
+        }
+    }
+
+    // 앱 초기화
+    const webrtcLive = new WebRTCLive();
+
+    // 페이지 언로드시 정리
+    window.addEventListener('beforeunload', () => {
+        webrtcLive.disconnect();
+    });
+</script>
 </body>
 </html>
