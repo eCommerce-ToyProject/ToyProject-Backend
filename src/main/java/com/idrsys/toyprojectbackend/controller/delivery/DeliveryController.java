@@ -6,6 +6,7 @@ import com.idrsys.toyprojectbackend.dto.delivery.UpdateDeliveryDto;
 import com.idrsys.toyprojectbackend.dto.orders.SearchOrderDto;
 import com.idrsys.toyprojectbackend.excel.excel.ExcelFile;
 import com.idrsys.toyprojectbackend.excel.excel.onesheet.OneSheetExcelFile;
+import com.idrsys.toyprojectbackend.excel.upload.UploadExcel;
 import com.idrsys.toyprojectbackend.repository.delivery.DeliveryRepositoryCustom;
 import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import com.idrsys.toyprojectbackend.service.DeliveryService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +54,23 @@ public class DeliveryController {
     public boolean createDelivery(@RequestBody AddDeliveryDto addDeliveryDto){
         return deliveryService.createDelivery(addDeliveryDto);
     }
+
+    @PostMapping("/createDelivery/Excel")
+    public void createDeliveryExcel(@RequestBody MultipartFile multipartFile, HttpServletResponse response) throws IOException, ReflectiveOperationException {
+
+        List<AddDeliveryDto> deliveryDtoList = UploadExcel.readExcel(multipartFile, AddDeliveryDto.class);
+        deliveryDtoList.forEach(deliveryDto -> {
+            deliveryService.createDelivery(deliveryDto);
+        });
+    }
+
+//    @PostMapping("uri")
+//    public void methodName(@RequestBody MultipartFile multipartFile, HttpServletResponse response) throws IOException, ReflectiveOperationException {
+//
+//        List<DtoClass> deliveryDtoList = UploadExcel.readExcel(multipartFile, DtoClass.class);
+//
+//        // 세이브 로직
+//    }
 
     @PutMapping("/updateDelivery")
     public boolean updateDelivery(@RequestBody UpdateDeliveryDto updateDeliveryDto){

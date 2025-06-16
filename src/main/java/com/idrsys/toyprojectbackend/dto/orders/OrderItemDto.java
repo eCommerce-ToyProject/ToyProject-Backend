@@ -15,19 +15,19 @@ import java.math.BigDecimal;
 @Setter
 public class OrderItemDto {
 
-    @ExcelColumn(headerName = "주문 번호")
+    @ExcelColumn(value = "주문 번호")
     private Long ordItemCd;
 
-    @ExcelColumn(headerName = "주문 수량")
+    @ExcelColumn(value = "주문 수량")
     private Long ordQty;
 
-    @ExcelColumn(headerName = "주문 가격")
+    @ExcelColumn(value = "주문 가격")
     private BigDecimal ordPrc;
 
-    @ExcelColumn(headerName = "주문 상품")
+    @ExcelColumn(value = "주문 상품")
     private GoodsSearchDto goods_no;
 
-    @ExcelColumn(headerName = "주문 상품")
+    @ExcelColumn(value = "주문 상품")
     private GoodsItemDto item_no;
 
 

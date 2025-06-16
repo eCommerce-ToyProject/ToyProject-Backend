@@ -1,21 +1,24 @@
 package com.idrsys.toyprojectbackend.controller.goods;
 
 import com.idrsys.toyprojectbackend.dto.goods.GoodsDto;
+import com.idrsys.toyprojectbackend.dto.goods.GoodsRequestDto;
 import com.idrsys.toyprojectbackend.dto.goods.GoodsSearchDto;
+import com.idrsys.toyprojectbackend.excel.upload.UploadExcel;
 import com.idrsys.toyprojectbackend.repository.goods.GoodsItemRepository;
 import com.idrsys.toyprojectbackend.repository.goods.GoodsRepository;
 import com.idrsys.toyprojectbackend.repository.goods.GoodsRepositoryCustom;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -46,6 +49,14 @@ public class GoodsContoller {
     public List<GoodsDto> goodsDetail(@RequestParam(name = "no",required = false) Long no) {
 
         return goodsRepositoryCustom.goodsDetail(no);
+    }
+
+    @PostMapping("/addGoods/excel")
+    public void addGoods(@RequestBody MultipartFile multipartFile, HttpServletResponse responseo) throws ReflectiveOperationException, IOException {
+        List<GoodsRequestDto> goodsReqDto = UploadExcel.readExcel(multipartFile, GoodsRequestDto.class);
+
+        GoodsRequestDto goodsRequestDto = goodsReqDto.getFirst();
+//        return ResponseEntity.;
     }
 
 //    @GetMapping("/goodsList/goodsOrder")

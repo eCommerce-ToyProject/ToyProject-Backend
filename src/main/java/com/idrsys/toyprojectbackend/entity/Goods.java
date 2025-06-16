@@ -47,4 +47,7 @@ public class Goods {
     @OneToMany(mappedBy = "goods_no",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    public void setParent(Goods goods) {
+        goods.goodsItem.forEach( it -> it.setGoods(this) );
+    }
 }

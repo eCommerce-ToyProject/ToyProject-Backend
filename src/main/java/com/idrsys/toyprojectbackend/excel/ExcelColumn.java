@@ -1,6 +1,5 @@
 package com.idrsys.toyprojectbackend.excel;
 
-import com.idrsys.toyprojectbackend.enums.DefaultEnum;
 import com.idrsys.toyprojectbackend.excel.style.NoExcelCellStyle;
 
 import java.lang.annotation.ElementType;
@@ -12,7 +11,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExcelColumn {
 
-	String headerName() default "";
+	String value() default "";
+	String separator() default "";
 
 	ExcelColumnStyle headerStyle() default @ExcelColumnStyle(excelCellStyleClass = NoExcelCellStyle.class);
 	ExcelColumnStyle bodyStyle() default @ExcelColumnStyle(excelCellStyleClass = NoExcelCellStyle.class);

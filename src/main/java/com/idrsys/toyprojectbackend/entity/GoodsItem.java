@@ -48,5 +48,9 @@ public class GoodsItem {
     private Goods goods;
 
     @OneToMany(mappedBy = "item_no",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<OrderItem> orderItems;
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    public void setGoods(Goods goods) {
+        this.goods = goods;
+    }
 }

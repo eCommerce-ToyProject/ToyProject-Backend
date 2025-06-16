@@ -50,7 +50,7 @@ public final class ExcelRenderResourceFactory {
 						ExcelCellKey.of(field.getName(), ExcelRenderLocation.BODY),
 						getCellStyle(decideAppliedStyleAnnotation(classDefinedBodyStyle, annotation.bodyStyle())), wb);
 				fieldNames.add(field.getName());
-				headerNamesMap.put(field.getName(), annotation.headerName());
+				headerNamesMap.put(field.getName(), annotation.value());
 			}
 		}
 
@@ -81,7 +81,7 @@ public final class ExcelRenderResourceFactory {
 						ExcelCellKey.of(field.getName(), ExcelRenderLocation.BODY),
 						getCellStyle(decideAppliedStyleAnnotation(classDefinedBodyStyle, annotation.bodyStyle())), wb);
 				fieldNames.add(field.getName());
-				headerNamesMap.put(field.getName(), annotation.headerName());
+				headerNamesMap.put(field.getName(), annotation.value());
 			}
 		}
 
