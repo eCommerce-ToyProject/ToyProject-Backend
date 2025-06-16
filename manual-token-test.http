@@ -1,0 +1,119 @@
+### 수동 토큰 설정 및 테스트
+
+### 1. 변수 확인
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 현재 저장된 변수 ===");
+  console.log("accessToken:", client.global.get("accessToken") || "없음");
+  console.log("refreshToken:", client.global.get("refreshToken") || "없음");
+  console.log("liveNo:", client.global.get("liveNo") || "없음");
+%}
+
+### 2. 수동 토큰 설정 (브라우저에서 복사한 토큰으로 교체)
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  // 여기에 실제 토큰을 설정하세요
+  // 브라우저 > 개발자 도구 > Application > Cookies > accessToken 값 복사
+  
+  const manualAccessToken = "eyJhbGciOiJIUzI1NiJ9.여기에_실제_토큰_붙여넣기";
+  const manualRefreshToken = "여기에_리프레시_토큰_붙여넣기";
+  
+  // 아래 주석을 해제하고 실제 토큰으로 교체하세요
+  // client.global.set("accessToken", manualAccessToken);
+  // client.global.set("refreshToken", manualRefreshToken);
+  
+  console.log("수동 토큰 설정을 위해 위 주석을 해제하고 실제 토큰으로 교체하세요.");
+%}
+
+### 3. 브라우저에서 로그인 후 쿠키 확인 방법
+# 1. 브라우저에서 http://localhost:8080/live-room-test.html 접속
+# 2. 개발자 도구(F12) 열기
+# 3. Application 탭 > Cookies > http://localhost:8080
+# 4. accessToken 값 복사
+# 5. 위의 "수동 토큰 설정" 부분에 붙여넣기
+
+### 4. 하드코딩된 토큰으로 테스트 (임시)
+GET http://localhost:8080/api/live?page=0&size=5
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.임시_토큰_여기에_입력
+
+### 5. 로그인 재시도 (다른 방법)
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "john123",
+  "password": "password123"
+}
+
+> {%
+  console.log("=== 로그인 재시도 ===");
+  console.log("Status:", response.status);
+  console.log("응답 본문:", response.body);
+  
+  // 모든 헤더 출력
+  if (response.headers) {
+    Object.keys(response.headers).forEach(key => {
+      console.log(`헤더 ${key}:`, response.headers[key]);
+    });
+  }
+  
+  // 다양한 방법으로 토큰 추출 시도
+  const setCookie = response.headers["Set-Cookie"] || 
+                   response.headers["set-cookie"] || 
+                   response.headers["SET-COOKIE"];
+                   
+  if (setCookie) {
+    console.log("Set-Cookie 찾음:", setCookie);
+    
+    // 토큰 추출
+    const cookieString = Array.isArray(setCookie) ? setCookie.join(';') : setCookie;
+    
+    const accessTokenMatch = cookieString.match(/accessToken=([^;,]+)/);
+    const refreshTokenMatch = cookieString.match(/refreshToken=([^;,]+)/);
+    
+    if (accessTokenMatch) {
+      client.global.set("accessToken", accessTokenMatch[1]);
+      console.log("✅ accessToken 추출 성공!");
+    }
+    
+    if (refreshTokenMatch) {
+      client.global.set("refreshToken", refreshTokenMatch[1]);
+      console.log("✅ refreshToken 추출 성공!");
+    }
+  }
+%}
+
+### 6. 저장된 토큰으로 API 테스트
+GET http://localhost:8080/members/loginCheck
+Authorization: Bearer {{accessToken}}
+
+### 7. 라이브 방송 생성 테스트
+POST http://localhost:8080/api/live
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "hostMemNo": 1,
+  "catCd": 1,
+  "title": "수동 토큰 테스트 방송",
+  "startTime": "2024-12-16T15:00:00"
+}
+
+### 8. 환경 변수 확인 (IntelliJ에서)
+# IntelliJ에서 다음과 같이 확인 가능:
+# 1. View > Tool Windows > HTTP Client
+# 2. Variables 탭에서 저장된 변수 확인
+# 3. Environment 드롭다운에서 development 선택
+
+### 9. 토큰 삭제 및 초기화
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 토큰 초기화 ===");
+  client.global.clear("accessToken");
+  client.global.clear("refreshToken");
+  client.global.clear("liveNo");
+  console.log("모든 토큰이 삭제되었습니다.");
+%}

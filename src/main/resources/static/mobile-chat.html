@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>모바일 라이브 채팅</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; color: white; height: 100vh; overflow: hidden; }
+        .mobile-chat { height: 100vh; display: flex; flex-direction: column; background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%); }
+        .mobile-header { background: rgba(0,0,0,0.9); padding: 10px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .live-badge { background: #ff4757; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .user-count { font-size: 12px; color: #ccc; }
+        .mobile-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .mobile-message { background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 15px; max-width: 80%; word-wrap: break-word; backdrop-filter: blur(10px); animation: fadeSlideIn 0.3s ease-out; }
+        .mobile-message.my-message { background: rgba(102, 126, 234, 0.8); align-self: flex-end; margin-left: auto; }
+        .mobile-message.system-message { background: rgba(255,255,255,0.05); align-self: center; font-size: 12px; color: #aaa; text-align: center; max-width: 90%; }
+        .message-author { font-size: 11px; color: #ccc; margin-bottom: 2px; }
+        .my-message .message-author { color: rgba(255,255,255,0.8); }
+        .message-content { font-size: 14px; line-height: 1.3; }
+        .message-time { font-size: 10px; color: #aaa; margin-top: 2px; text-align: right; }
+        .mobile-input { background: rgba(0,0,0,0.9); padding: 10px 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; align-items: center; }
+        .mobile-input input { flex: 1; background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 15px; border-radius: 20px; font-size: 16px; outline: none; }
+        .mobile-input input::placeholder { color: #aaa; }
+        .send-button { background: #667eea; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+        .send-button:active { background: #5a6fd8; }
+        .login-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-card { background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; width: 90%; max-width: 300px; backdrop-filter: blur(20px); }
+        .login-title { text-align: center; margin-bottom: 20px; font-size: 18px; font-weight: 600; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 12px; color: #ccc; }
+        .form-group input { width: 100%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 12px; border-radius: 8px; font-size: 16px; }
+        .join-button { width: 100%; background: #667eea; border: none; color: white; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 600; margin-top: 10px; }
+        .connection-status { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 15px; font-size: 11px; z-index: 100; }
+        .status-connected { background: rgba(46, 213, 115, 0.8); }
+        .status-connecting { background: rgba(255, 165, 2, 0.8); }
+        .status-disconnected { background: rgba(255, 71, 87, 0.8); }
+        .mobile-messages::-webkit-scrollbar { display: none; }
+        .mobile-messages { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="mobile-chat">
+        <div class="connection-status" id="connectionStatus">연결 대기 중</div>
+        <div class="mobile-header">
+            <div><div class="live-badge">LIVE</div><div style="font-size: 14px; margin-top: 2px;" id="roomTitle">라이브 방송</div></div>
+            <div class="user-count" id="userCount">👥 0</div>
+        </div>
+        <div class="mobile-messages" id="mobileMessages"></div>
+        <div class="mobile-input">
+            <input type="text" id="mobileMessageInput" placeholder="메시지 입력..." maxlength="500">
+            <button class="send-button" onclick="sendMobileMessage()">📤</button>
+        </div>
+        <div class="login-overlay" id="loginOverlay">
+            <div class="login-card">
+                <div class="login-title">🎬 라이브 채팅 참여</div>
+                <div class="form-group"><label>라이브 방송 번호</label><input type="number" id="mobileLiveNo" placeholder="예: 1" min="1"></div>
+                <div class="form-group"><label>회원 번호</label><input type="number" id="mobileMemNo" placeholder="예: 1" min="1"></div>
+                <button class="join-button" onclick="joinMobileChat()">입장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mobileStompClient = null, mobileCurrentLiveNo = null, mobileCurrentMemNo = null, mobileIsConnected = false;
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const liveNoParam = urlParams.get('liveNo'), memNoParam = urlParams.get('memNo');
+            if (liveNoParam) document.getElementById('mobileLiveNo').value = liveNoParam;
+            if (memNoParam) document.getElementById('mobileMemNo').value = memNoParam;
+            if (liveNoParam && memNoParam) setTimeout(() => joinMobileChat(), 500);
+
+            document.getElementById('mobileMessageInput').addEventListener('keypress', e => e.key === 'Enter' && sendMobileMessage());
+            document.getElementById('mobileLiveNo').addEventListener('keypress', e => e.key === 'Enter' && document.getElementById('mobileMemNo').focus());
+            document.getElementById('mobileMemNo').addEventListener('keypress', e => e.key === 'Enter' && joinMobileChat());
+        };
+
+        function updateMobileConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = `connection-status status-${status}`;
+            statusElement.textContent = message;
+        }
+
+        function joinMobileChat() {
+            const liveNo = document.getElementById('mobileLiveNo').value, memNo = document.getElementById('mobileMemNo').value;
+            if (!liveNo || !memNo) return alert('라이브 방송 번호와 회원 번호를 모두 입력해주세요.');
+            mobileCurrentLiveNo = parseInt(liveNo); mobileCurrentMemNo = parseInt(memNo);
+            updateMobileConnectionStatus('connecting', '연결 중...'); connectMobileWebSocket();
+        }
+
+        function connectMobileWebSocket() {
+            try {
+                const socket = new SockJS('/ws'); mobileStompClient = Stomp.over(socket); mobileStompClient.debug = null;
+                mobileStompClient.connect({}, function(frame) {
+                    mobileIsConnected = true; updateMobileConnectionStatus('connected', '연결됨');
+                    mobileStompClient.subscribe(`/topic/live/${mobileCurrentLiveNo}`, msg => displayMobileMessage(JSON.parse(msg.body)));
+                    mobileStompClient.subscribe(`/topic/live/${mobileCurrentLiveNo}/usercount`, msg => updateMobileUserCount(parseInt(msg.body)));
+                    mobileStompClient.send(`/app/chat.join/${mobileCurrentLiveNo}`, {}, JSON.stringify({liveNo: mobileCurrentLiveNo, memNo: mobileCurrentMemNo}));
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('roomTitle').textContent = `방송 #${mobileCurrentLiveNo}`;
+                    document.getElementById('mobileMessageInput').focus(); loadMobileChatHistory();
+                }, error => { updateMobileConnectionStatus('disconnected', '연결 실패'); alert('연결에 실패했습니다: ' + error); });
+            } catch (error) { updateMobileConnectionStatus('disconnected', '연결 실패'); alert('WebSocket 연결에 실패했습니다.'); }
+        }
+
+        function sendMobileMessage() {
+            const messageInput = document.getElementById('mobileMessageInput'), message = messageInput.value.trim();
+            if (!message || !mobileStompClient || !mobileIsConnected) return;
+            try {
+                mobileStompClient.send(`/app/chat.sendMessage/${mobileCurrentLiveNo}`, {}, JSON.stringify({liveNo: mobileCurrentLiveNo, memNo: mobileCurrentMemNo, message: message, type: 'CHAT'}));
+                messageInput.value = '';
+            } catch (error) { alert('메시지 전송에 실패했습니다.'); }
+        }
+
+        function displayMobileMessage(chatMessage) {
+            const messagesContainer = document.getElementById('mobileMessages'), messageElement = document.createElement('div');
+            const isMyMessage = chatMessage.memNo === mobileCurrentMemNo, isSystemMessage = chatMessage.type === 'JOIN' || chatMessage.type === 'LEAVE';
+            if (isSystemMessage) {
+                messageElement.className = 'mobile-message system-message';
+                messageElement.innerHTML = `<div class="message-content">${chatMessage.message}</div>`;
+            } else {
+                messageElement.className = `mobile-message ${isMyMessage ? 'my-message' : ''}`;
+                messageElement.innerHTML = `<div class="message-author">${chatMessage.memName}</div><div class="message-content">${escapeHtml(chatMessage.message)}</div><div class="message-time">${formatMobileTime(chatMessage.sendTime)}</div>`;
+            }
+            messagesContainer.appendChild(messageElement); messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function loadMobileChatHistory() {
+            fetch(`/api/chat/history/${mobileCurrentLiveNo}?page=0&size=30`)
+                .then(response => response.ok ? response.json() : null)
+                .then(data => data && data.content && data.content.reverse().forEach(message => displayMobileMessage(message)))
+                .catch(error => console.warn('Mobile chat history load error:', error));
+        }
+
+        function updateMobileUserCount(count) { document.getElementById('userCount').textContent = `👥 ${count}`; }
+        function formatMobileTime(timeString) { if (!timeString) return ''; try { const date = new Date(timeString); return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`; } catch { return ''; } }
+        function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        window.addEventListener('beforeunload', () => mobileStompClient && mobileIsConnected && (mobileStompClient.send(`/app/chat.leave/${mobileCurrentLiveNo}`, {}, JSON.stringify({liveNo: mobileCurrentLiveNo, memNo: mobileCurrentMemNo})), mobileStompClient.disconnect()));
+        document.addEventListener('visibilitychange', () => !document.hidden && mobileStompClient && !mobileStompClient.connected && mobileCurrentLiveNo && setTimeout(() => !mobileStompClient.connected && (updateMobileConnectionStatus('connecting', '재연결 중...'), connectMobileWebSocket()), 1000));
+    </script>
+</body>
+</html>

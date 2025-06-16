@@ -13,13 +13,10 @@ import java.util.Optional;
 
 public interface MemberService {
 
-
     @Transactional
     JwtToken signIn(String id, String password);
 
     JwtToken reissuanceAccessTokenWithRefreshToken(String inputRefreshToken);
-
-//    JwtToken reissuanceAccessTokenWithRefreshToken(Cookie[] cookies);
 
     void deleteRefreshToken(String refreshToken);
 
@@ -31,4 +28,14 @@ public interface MemberService {
     Optional<Member> getMemberInfo(String id);
 
     List<Member> getMembers();
+    
+    /**
+     * 회원 번호로 회원 조회
+     */
+    Optional<Member> findById(Integer memNo);
+    
+    /**
+     * ID로 회원 조회 (문자열)
+     */
+    Optional<Member> findById(String id);
 }

@@ -181,4 +181,17 @@ public class MemberServiceImpl implements MemberService {
     public List<Member> getMembers() {
         return memberRepository.findAll();
     }
+
+    @Override
+    public Optional<Member> findById(Integer memNo) {
+        if (memNo == null) {
+            return Optional.empty();
+        }
+        return memberRepository.findByNoAndMemDeletedFalse(memNo.longValue());
+    }
+
+    @Override
+    public Optional<Member> findById(String id) {
+        return memberRepository.findByIdAndMemDeletedFalse(id);
+    }
 }

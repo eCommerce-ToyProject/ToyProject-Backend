@@ -1,0 +1,217 @@
+### 단계별 토큰 확인 및 디버깅
+
+### 1단계: 서버 연결 확인
+GET http://localhost:8080/api/chat/test/health
+
+### 2단계: 로그인 시도 - 상세 디버깅
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "jammykim1",
+  "password": "jammykim0603!"
+}
+
+> {%
+  console.log("=== 2단계: 로그인 응답 상세 분석 ===");
+  console.log("Status Code:", response.status);
+  console.log("Response Body:", response.body);
+  console.log("Response Headers:", JSON.stringify(response.headers, null, 2));
+  
+  // Set-Cookie 헤더 확인
+  if (response.headers) {
+    const setCookieHeader = response.headers["Set-Cookie"] || response.headers["set-cookie"];
+    console.log("Set-Cookie 헤더:", setCookieHeader);
+    
+    if (setCookieHeader) {
+      const cookieArray = Array.isArray(setCookieHeader) ? setCookieHeader : [setCookieHeader];
+      
+      cookieArray.forEach((cookie, index) => {
+        console.log(`Cookie ${index + 1}:`, cookie);
+        
+        // accessToken 추출
+        if (cookie.includes("accessToken=")) {
+          const tokenMatch = cookie.match(/accessToken=([^;]+)/);
+          if (tokenMatch && tokenMatch[1]) {
+            const token = tokenMatch[1];
+            client.global.set("accessToken", token);
+            console.log("✅ Access Token 저장됨!");
+            console.log("토큰 길이:", token.length);
+            console.log("토큰 시작:", token.substring(0, 30) + "...");
+          }
+        }
+        
+        // refreshToken 추출
+        if (cookie.includes("refreshToken=")) {
+          const tokenMatch = cookie.match(/refreshToken=([^;]+)/);
+          if (tokenMatch && tokenMatch[1]) {
+            const token = tokenMatch[1];
+            client.global.set("refreshToken", token);
+            console.log("✅ Refresh Token 저장됨!");
+          }
+        }
+      });
+    } else {
+      console.log("❌ Set-Cookie 헤더가 없습니다!");
+    }
+  }
+  
+  // 최종 저장 상태 확인
+  const savedAccessToken = client.global.get("accessToken");
+  const savedRefreshToken = client.global.get("refreshToken");
+  
+  console.log("=== 저장 결과 ===");
+  console.log("Access Token 저장됨:", savedAccessToken ? "예" : "아니오");
+  console.log("Refresh Token 저장됨:", savedRefreshToken ? "예" : "아니오");
+%}
+
+### 3단계: 저장된 토큰 확인
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 3단계: 저장된 변수 확인 ===");
+  
+  const accessToken = client.global.get("accessToken");
+  const refreshToken = client.global.get("refreshToken");
+  
+  console.log("Access Token:", accessToken ? "있음 (" + accessToken.length + "자)" : "없음");
+  console.log("Refresh Token:", refreshToken ? "있음 (" + refreshToken.length + "자)" : "없음");
+  
+  if (accessToken) {
+    console.log("✅ 토큰이 정상적으로 저장되어 있습니다.");
+    console.log("Bearer 형태:", "Bearer " + accessToken.substring(0, 20) + "...");
+  } else {
+    console.log("❌ 토큰이 저장되지 않았습니다. 2단계 로그인을 다시 확인하세요.");
+  }
+%}
+
+### 4단계: 로그인 상태 확인
+GET http://localhost:8080/members/loginCheck
+Authorization: Bearer {{accessToken}}
+
+> {%
+  console.log("=== 4단계: 로그인 상태 확인 ===");
+  console.log("Status:", response.status);
+  console.log("Response:", response.body);
+  
+  if (response.status === 200) {
+    console.log("✅ 토큰이 유효합니다!");
+  } else {
+    console.log("❌ 토큰이 유효하지 않습니다.");
+  }
+%}
+
+### 5단계: 수동 토큰 설정 (필요시)
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 5단계: 수동 토큰 설정 (필요시만) ===");
+  
+  // 토큰이 없는 경우 수동 설정 가이드
+  const accessToken = client.global.get("accessToken");
+  if (!accessToken) {
+    console.log("토큰이 없습니다. 다음 방법 중 하나를 시도하세요:");
+    console.log("1. 2단계 로그인을 다시 실행");
+    console.log("2. 다른 계정(jane456, admin)으로 로그인 시도");
+    console.log("3. 아래 주석을 해제하고 실제 토큰으로 수동 설정");
+    
+    // 수동 토큰 설정 (실제 토큰으로 교체 필요)
+    // client.global.set("accessToken", "여기에_실제_토큰_입력");
+    
+    console.log("브라우저에서 직접 로그인 후 개발자 도구 > Application > Cookies에서 accessToken 복사 가능");
+  }
+%}
+
+### 6단계: 다른 계정으로 로그인 시도
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "password": "admin123"
+}
+
+> {%
+  console.log("=== 6단계: 관리자 계정 로그인 ===");
+  console.log("Status:", response.status);
+  
+  if (response.headers && response.headers["Set-Cookie"]) {
+    const cookies = response.headers["Set-Cookie"];
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    
+    cookieArray.forEach(cookie => {
+      if (cookie.includes("accessToken=")) {
+        const tokenMatch = cookie.match(/accessToken=([^;]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          client.global.set("accessToken", tokenMatch[1]);
+          console.log("✅ 관리자 토큰 저장됨!");
+        }
+      }
+    });
+  }
+%}
+
+### 7단계: 라이브 방송 생성 테스트 (토큰 확인 후)
+POST http://localhost:8080/api/live
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "hostMemNo": 1,
+  "catCd": 1,
+  "title": "단계별 테스트 방송",
+  "startTime": "2024-12-16T15:00:00",
+  "endTime": "2024-12-16T16:00:00"
+}
+
+> {%
+  console.log("=== 7단계: 라이브 방송 생성 ===");
+  console.log("Status:", response.status);
+  console.log("Response:", JSON.stringify(response.body, null, 2));
+  
+  if (response.status === 201) {
+    console.log("✅ 라이브 방송 생성 성공!");
+    if (response.body && response.body.liveNo) {
+      client.global.set("liveNo", response.body.liveNo);
+      console.log("Live No 저장됨:", response.body.liveNo);
+    }
+  } else if (response.status === 401) {
+    console.log("❌ 인증 실패. 토큰을 확인하세요.");
+  } else if (response.status === 403) {
+    console.log("❌ 권한 없음. 다른 계정으로 시도하세요.");
+  } else {
+    console.log("❌ 요청 실패:", response.status);
+  }
+%}
+
+### 8단계: 사용 가능한 모든 계정 테스트
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "jane456",
+  "password": "password123"
+}
+
+### 9단계: 회원 목록 확인 (어떤 계정이 있는지 확인)
+GET http://localhost:8080/members/memberList
+Authorization: Bearer {{accessToken}}
+
+> {%
+  console.log("=== 9단계: 회원 목록 ===");
+  console.log("Status:", response.status);
+  if (response.body) {
+    console.log("회원 수:", response.body.length);
+    response.body.forEach((member, index) => {
+      console.log(`회원 ${index + 1}:`, member.memId, "-", member.memName);
+    });
+  }
+%}
+
+### 10단계: ID 존재 확인
+GET http://localhost:8080/members/id/exists?id=john123
+
+> {%
+  console.log("=== 10단계: ID 존재 확인 ===");
+  console.log("john123 존재:", response.body);
+%}

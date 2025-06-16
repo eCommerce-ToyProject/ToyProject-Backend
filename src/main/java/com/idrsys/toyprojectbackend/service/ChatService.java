@@ -7,7 +7,6 @@ import com.idrsys.toyprojectbackend.entity.LiveRoom;
 import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.repository.chat.ChatRepository;
 import com.idrsys.toyprojectbackend.repository.chat.LiveRoomRepository;
-import com.idrsys.toyprojectbackend.repository.memebr.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,6 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final LiveRoomRepository liveRoomRepository;
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -51,7 +49,7 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("활성 상태의 라이브 방송을 찾을 수 없습니다."));
 
         // 회원 정보 조회
-        Member member = memberRepository.findById(String.valueOf(request.getMemNo()))
+        Member member = memberService.findById(request.getMemNo())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
         // 채팅 메시지 저장
@@ -68,7 +66,7 @@ public class ChatService {
                 .chatNo(savedChat.getChatNo())
                 .liveNo(savedChat.getLiveNo())
                 .memNo(savedChat.getMemNo())
-                .memName(member.getUsername())
+                .memName(member.getMemName())
                 .message(savedChat.getMessage())
                 .sendTime(savedChat.getSendTime())
                 .type(request.getType())
@@ -95,7 +93,7 @@ public class ChatService {
                 .orElseThrow(() -> new IllegalArgumentException("활성 상태의 라이브 방송을 찾을 수 없습니다."));
 
         // 회원 정보 조회
-        Member member = memberRepository.findById(String.valueOf(memNo))
+        Member member = memberService.findById(memNo)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
         // Redis에 사용자 추가
@@ -107,8 +105,8 @@ public class ChatService {
         ChatMessageDto joinMessage = ChatMessageDto.builder()
                 .liveNo(liveNo)
                 .memNo(memNo)
-                .memName(member.getUsername())
-                .message(member.getUsername() + "님이 입장하셨습니다.")
+                .memName(member.getMemName())
+                .message(member.getMemName() + "님이 입장하셨습니다.")
                 .sendTime(LocalDateTime.now())
                 .type(ChatMessageDto.MessageType.JOIN)
                 .build();
@@ -121,7 +119,7 @@ public class ChatService {
         messagingTemplate.convertAndSend("/topic/live/" + liveNo + "/usercount", userCount);
 
         log.info("User joined live room: liveNo={}, memNo={}, userName={}", 
-                liveNo, memNo, member.getUsername());
+                liveNo, memNo, member.getMemName());
 
         return joinMessage;
     }
@@ -131,7 +129,7 @@ public class ChatService {
      */
     public ChatMessageDto leaveLiveRoom(Long liveNo, Integer memNo) {
         // 회원 정보 조회
-        Optional<Member> memberOpt = memberRepository.findById(String.valueOf(memNo));
+        Optional<Member> memberOpt = memberService.findById(memNo);
 
         // Redis에서 사용자 제거
         String roomKey = LIVE_ROOM_USERS_KEY + liveNo;
@@ -143,8 +141,8 @@ public class ChatService {
             ChatMessageDto leaveMessage = ChatMessageDto.builder()
                     .liveNo(liveNo)
                     .memNo(memNo)
-                    .memName(member.getUsername())
-                    .message(member.getUsername() + "님이 퇴장하셨습니다.")
+                    .memName(member.getMemName())
+                    .message(member.getMemName() + "님이 퇴장하셨습니다.")
                     .sendTime(LocalDateTime.now())
                     .type(ChatMessageDto.MessageType.LEAVE)
                     .build();
@@ -153,7 +151,7 @@ public class ChatService {
             messagingTemplate.convertAndSend("/topic/live/" + liveNo, leaveMessage);
 
             log.info("User left live room: liveNo={}, memNo={}, userName={}", 
-                    liveNo, memNo, member.getUsername());
+                    liveNo, memNo, member.getMemName());
 
             // 현재 접속자 수 업데이트 브로드캐스트
             long userCount = getCurrentUserCount(liveNo);
@@ -222,13 +220,13 @@ public class ChatService {
      * Chat 엔티티를 DTO로 변환
      */
     private ChatMessageDto convertToDto(Chat chat) {
-        Optional<Member> memberOpt = memberRepository.findById(String.valueOf(chat.getMemNo()));
+        Optional<Member> memberOpt = memberService.findById(chat.getMemNo());
         
         return ChatMessageDto.builder()
                 .chatNo(chat.getChatNo())
                 .liveNo(chat.getLiveNo())
                 .memNo(chat.getMemNo())
-                .memName(memberOpt.map(Member::getUsername).orElse("알 수 없는 사용자"))
+                .memName(memberOpt.map(Member::getMemName).orElse("알 수 없는 사용자"))
                 .message(chat.getMessage())
                 .sendTime(chat.getSendTime())
                 .type(ChatMessageDto.MessageType.CHAT)

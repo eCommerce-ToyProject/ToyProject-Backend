@@ -1,0 +1,103 @@
+### 로그인 테스트 (두 가지 필드명 버전)
+
+### 1. DTO 필드명 사용 (id, password)
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "john123",
+  "password": "password123"
+}
+
+> {%
+  console.log("=== DTO 필드명 버전 로그인 ===");
+  console.log("Status:", response.status);
+  console.log("Headers:", JSON.stringify(response.headers, null, 2));
+  
+  if (response.headers && response.headers["Set-Cookie"]) {
+    const cookies = response.headers["Set-Cookie"];
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    
+    cookieArray.forEach(cookie => {
+      if (cookie.includes("accessToken=")) {
+        const tokenMatch = cookie.match(/accessToken=([^;]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          client.global.set("accessToken", tokenMatch[1]);
+          console.log("✅ Access Token 저장됨 (DTO 버전)");
+        }
+      }
+      
+      if (cookie.includes("refreshToken=")) {
+        const tokenMatch = cookie.match(/refreshToken=([^;]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          client.global.set("refreshToken", tokenMatch[1]);
+          console.log("✅ Refresh Token 저장됨 (DTO 버전)");
+        }
+      }
+    });
+  }
+%}
+
+### 2. 기존 필드명 사용 (memId, memPwd)
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "memId": "john123",
+  "memPwd": "password123"
+}
+
+> {%
+  console.log("=== 기존 필드명 버전 로그인 ===");
+  console.log("Status:", response.status);
+  console.log("Headers:", JSON.stringify(response.headers, null, 2));
+  
+  if (response.headers && response.headers["Set-Cookie"]) {
+    const cookies = response.headers["Set-Cookie"];
+    const cookieArray = Array.isArray(cookies) ? cookies : [cookies];
+    
+    cookieArray.forEach(cookie => {
+      if (cookie.includes("accessToken=")) {
+        const tokenMatch = cookie.match(/accessToken=([^;]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          client.global.set("accessToken2", tokenMatch[1]);
+          console.log("✅ Access Token 저장됨 (기존 버전)");
+        }
+      }
+      
+      if (cookie.includes("refreshToken=")) {
+        const tokenMatch = cookie.match(/refreshToken=([^;]+)/);
+        if (tokenMatch && tokenMatch[1]) {
+          client.global.set("refreshToken2", tokenMatch[1]);
+          console.log("✅ Refresh Token 저장됨 (기존 버전)");
+        }
+      }
+    });
+  }
+%}
+
+### 3. 저장된 토큰 확인
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 저장된 토큰 비교 ===");
+  console.log("DTO 버전 Access Token:", client.global.get("accessToken") ? "있음" : "없음");
+  console.log("기존 버전 Access Token:", client.global.get("accessToken2") ? "있음" : "없음");
+  
+  // 성공한 토큰을 기본값으로 설정
+  if (client.global.get("accessToken")) {
+    console.log("DTO 필드명(id, password) 사용 성공!");
+  } else if (client.global.get("accessToken2")) {
+    client.global.set("accessToken", client.global.get("accessToken2"));
+    client.global.set("refreshToken", client.global.get("refreshToken2"));
+    console.log("기존 필드명(memId, memPwd) 사용 성공!");
+  }
+%}
+
+### 4. 로그인 상태 확인
+GET http://localhost:8080/members/loginCheck
+Authorization: Bearer {{accessToken}}
+
+### 5. 간단한 API 테스트
+GET http://localhost:8080/api/live?page=0&size=5
+Authorization: Bearer {{accessToken}}

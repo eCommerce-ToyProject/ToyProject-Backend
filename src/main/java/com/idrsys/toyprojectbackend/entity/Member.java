@@ -97,6 +97,20 @@ public class Member implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+    
+    /**
+     * 회원 이름 조회 (비즈니스 로직용)
+     */
+    public String getMemName() {
+        return this.username;
+    }
+    
+    /**
+     * 회원 번호 조회 (비즈니스 로직용)
+     */
+    public Integer getMemNo() {
+        return this.no != null ? this.no.intValue() : null;
+    }
 
 
 

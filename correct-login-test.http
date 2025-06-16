@@ -1,0 +1,136 @@
+### 올바른 로그인 테스트 (DTO 필드명 맞춤)
+
+### 1. 헬스 체크
+GET http://localhost:8080/api/chat/test/health
+
+### 2. 올바른 필드명으로 로그인
+POST http://localhost:8080/members/sign-in
+Content-Type: application/json
+
+{
+  "id": "jammykim1",
+  "password": "jammykim0603!"
+}
+
+> {%
+  console.log("=== 로그인 응답 분석 ===");
+  console.log("Status:", response.status);
+  console.log("Response body:", JSON.stringify(response.body, null, 2));
+  
+  if (response.status === 200 && response.body) {
+    // JwtToken 형태의 응답 처리
+    if (response.body.accessToken) {
+      client.global.set("accessToken", response.body.accessToken);
+      console.log("✅ Access Token 저장됨");
+    }
+    
+    if (response.body.refreshToken) {
+      client.global.set("refreshToken", response.body.refreshToken);
+      console.log("✅ Refresh Token 저장됨");
+    }
+    
+    if (response.body.grantType) {
+      client.global.set("tokenType", response.body.grantType);
+      console.log("✅ Grant Type 저장됨:", response.body.grantType);
+    }
+    
+    // 저장 확인
+    const savedToken = client.global.get("accessToken");
+    if (savedToken) {
+      console.log("🔑 토큰 저장 완료!");
+    }
+  } else {
+    console.log("❌ 로그인 실패");
+  }
+%}
+
+### 3. 다른 사용자로 로그인
+POST http://localhost:8080/sign-in
+Content-Type: application/json
+
+{
+  "id": "jane456",
+  "password": "password123"
+}
+
+### 4. 관리자로 로그인
+POST http://localhost:8080/sign-in
+Content-Type: application/json
+
+{
+  "id": "admin",
+  "password": "admin123"
+}
+
+### 5. 저장된 토큰으로 인증 테스트
+GET http://localhost:8080/my-info
+Authorization: Bearer {{accessToken}}
+
+### 6. 토큰 정보 확인
+GET http://localhost:8080/api/chat/test/health
+
+> {%
+  console.log("=== 현재 저장된 변수들 ===");
+  console.log("Access Token:", client.global.get("accessToken") ? "저장됨" : "없음");
+  console.log("Refresh Token:", client.global.get("refreshToken") ? "저장됨" : "없음");
+  console.log("Token Type:", client.global.get("tokenType") || "미설정");
+%}
+
+### 7. 라이브 방송 생성 (토큰 사용)
+POST http://localhost:8080/api/live
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "hostMemNo": 1,
+  "catCd": 1,
+  "title": "올바른 인증으로 생성한 방송",
+  "startTime": "2024-12-16T15:00:00",
+  "endTime": "2024-12-16T16:00:00"
+}
+
+> {%
+  if (response.status === 201 && response.body && response.body.liveNo) {
+    client.global.set("liveNo", response.body.liveNo);
+    console.log("✅ 라이브 방송 생성됨:", response.body.liveNo);
+  }
+%}
+
+### 8. 라이브 방송 시작
+POST http://localhost:8080/api/live/{{liveNo}}/start?hostMemNo=1
+Authorization: Bearer {{accessToken}}
+
+### 9. 라이브 방송 목록 조회
+GET http://localhost:8080/api/live?page=0&size=10
+Authorization: Bearer {{accessToken}}
+
+### 10. 토큰 갱신
+POST http://localhost:8080/reissue
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+> {%
+  if (response.status === 200 && response.body) {
+    if (response.body.accessToken) {
+      client.global.set("accessToken", response.body.accessToken);
+      console.log("✅ 토큰 갱신 완료");
+    }
+  }
+%}
+
+### 11. 로그아웃
+POST http://localhost:8080/logout
+Authorization: Bearer {{accessToken}}
+
+> {%
+  if (response.status === 200) {
+    client.global.clear("accessToken");
+    client.global.clear("refreshToken");
+    client.global.clear("tokenType");
+    client.global.clear("liveNo");
+    console.log("✅ 로그아웃 완료");
+  }
+%}

@@ -1,0 +1,138 @@
+### 라이브 채팅 통합 테스트
+
+### 변수 설정
+@baseUrl = http://localhost:8080
+
+### ===== 1단계: 호스트 로그인 =====
+POST {{baseUrl}}/sign-in
+Content-Type: application/json
+
+{
+  "memId": "john123",
+  "memPwd": "password123"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("hostToken", data.accessToken);
+    client.global.set("hostMemNo", "1"); // 실제 회원번호로 설정
+    console.log("호스트 로그인 완료");
+  }
+%}
+
+### ===== 2단계: 시청자 로그인 =====
+POST {{baseUrl}}/sign-in
+Content-Type: application/json
+
+{
+  "memId": "jane456",
+  "memPwd": "password123"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("viewerToken", data.accessToken);
+    client.global.set("viewerMemNo", "2"); // 실제 회원번호로 설정
+    console.log("시청자 로그인 완료");
+  }
+%}
+
+### ===== 3단계: 라이브 방송 생성 =====
+POST {{baseUrl}}/api/live
+Content-Type: application/json
+Authorization: Bearer {{hostToken}}
+
+{
+  "hostMemNo": {{hostMemNo}},
+  "catCd": 1,
+  "title": "HTTP Client 테스트 라이브 방송",
+  "startTime": "2024-06-16T15:00:00",
+  "endTime": "2024-06-16T17:00:00"
+}
+
+> {%
+  if (response.status === 201) {
+    const data = response.body;
+    client.global.set("liveNo", data.liveNo);
+    console.log("라이브 방송 생성 완료. Live No: " + data.liveNo);
+  }
+%}
+
+### ===== 4단계: 라이브 방송 시작 =====
+POST {{baseUrl}}/api/live/{{liveNo}}/start?hostMemNo={{hostMemNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 5단계: 라이브 방송 정보 확인 =====
+GET {{baseUrl}}/api/live/{{liveNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 6단계: 채팅 기록 조회 (빈 상태) =====
+GET {{baseUrl}}/api/chat/history/{{liveNo}}?page=0&size=20
+Authorization: Bearer {{viewerToken}}
+
+### ===== 7단계: 현재 접속자 수 확인 =====
+GET {{baseUrl}}/api/chat/usercount/{{liveNo}}
+
+### ===== 8단계: 현재 접속자 목록 확인 =====
+GET {{baseUrl}}/api/chat/users/{{liveNo}}
+Authorization: Bearer {{viewerToken}}
+
+### ===== 9단계: WebSocket 정보 확인 =====
+GET {{baseUrl}}/api/chat/test/websocket-info
+
+### ===== 10단계: 시스템 헬스 체크 =====
+GET {{baseUrl}}/api/chat/test/health
+
+### ===== 11단계: 라이브 방송 목록 조회 =====
+GET {{baseUrl}}/api/live?page=0&size=10
+Authorization: Bearer {{viewerToken}}
+
+### ===== 12단계: 호스트별 방송 목록 조회 =====
+GET {{baseUrl}}/api/live/host/{{hostMemNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 13단계: 카테고리별 방송 목록 조회 =====
+GET {{baseUrl}}/api/live/category/1
+Authorization: Bearer {{viewerToken}}
+
+### ===== 14단계: 방송 정보 수정 =====
+PUT {{baseUrl}}/api/live/{{liveNo}}?hostMemNo={{hostMemNo}}
+Content-Type: application/json
+Authorization: Bearer {{hostToken}}
+
+{
+  "title": "수정된 라이브 방송 제목"
+}
+
+### ===== 15단계: 수정된 방송 정보 확인 =====
+GET {{baseUrl}}/api/live/{{liveNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 마지막 단계: 라이브 방송 종료 =====
+POST {{baseUrl}}/api/live/{{liveNo}}/end?hostMemNo={{hostMemNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 정리: 종료 후 상태 확인 =====
+GET {{baseUrl}}/api/live/{{liveNo}}
+Authorization: Bearer {{hostToken}}
+
+### ===== 오류 테스트: 권한 없는 사용자의 방송 조작 시도 =====
+POST {{baseUrl}}/api/live/{{liveNo}}/start?hostMemNo=999
+Authorization: Bearer {{viewerToken}}
+
+### ===== 토큰 갱신 테스트 =====
+POST {{baseUrl}}/reissue
+Content-Type: application/json
+
+{
+  "refreshToken": "{{hostToken}}"
+}
+
+### ===== 로그아웃 =====
+POST {{baseUrl}}/logout
+Authorization: Bearer {{hostToken}}
+
+POST {{baseUrl}}/logout
+Authorization: Bearer {{viewerToken}}

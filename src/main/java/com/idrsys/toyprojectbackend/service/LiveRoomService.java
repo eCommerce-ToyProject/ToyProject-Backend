@@ -3,7 +3,6 @@ package com.idrsys.toyprojectbackend.service;
 import com.idrsys.toyprojectbackend.dto.chat.LiveRoomCreateDto;
 import com.idrsys.toyprojectbackend.dto.chat.LiveRoomDto;
 import com.idrsys.toyprojectbackend.dto.chat.LiveRoomUpdateDto;
-import com.idrsys.toyprojectbackend.entity.Category;
 import com.idrsys.toyprojectbackend.entity.LiveRoom;
 import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.repository.chat.LiveRoomRepository;
@@ -64,9 +63,9 @@ public class LiveRoomService {
         LiveRoom savedLiveRoom = liveRoomRepository.save(liveRoom);
 
         log.info("Live room created: liveNo={}, host={}, title={}", 
-                savedLiveRoom.getLiveNo(), host.getMemName(), savedLiveRoom.getTitle());
+                savedLiveRoom.getLiveNo(), host.getUsername(), savedLiveRoom.getTitle());
 
-        return convertToDto(savedLiveRoom, host.getMemName(), null);
+        return convertToDto(savedLiveRoom, host.getUsername(), null);
     }
 
     /**
@@ -95,7 +94,7 @@ public class LiveRoomService {
         log.info("Live room started: liveNo={}, hostMemNo={}", liveNo, hostMemNo);
 
         Member host = memberService.findById(hostMemNo).orElse(null);
-        return convertToDto(updatedLiveRoom, host != null ? host.getMemName() : null, null);
+        return convertToDto(updatedLiveRoom, host != null ? host.getUsername() : null, null);
     }
 
     /**
@@ -128,7 +127,7 @@ public class LiveRoomService {
         log.info("Live room ended: liveNo={}, hostMemNo={}", liveNo, hostMemNo);
 
         Member host = memberService.findById(hostMemNo).orElse(null);
-        return convertToDto(updatedLiveRoom, host != null ? host.getMemName() : null, null);
+        return convertToDto(updatedLiveRoom, host != null ? host.getUsername() : null, null);
     }
 
     /**
@@ -169,7 +168,7 @@ public class LiveRoomService {
         LiveRoom updatedLiveRoom = liveRoomRepository.save(liveRoom);
 
         Member host = memberService.findById(hostMemNo).orElse(null);
-        return convertToDto(updatedLiveRoom, host != null ? host.getMemName() : null, null);
+        return convertToDto(updatedLiveRoom, host != null ? host.getUsername() : null, null);
     }
 
     /**
@@ -183,7 +182,7 @@ public class LiveRoomService {
         Member host = memberService.findById(liveRoom.getHostMemNo()).orElse(null);
         Long currentUserCount = getCurrentUserCount(liveNo);
         
-        return convertToDto(liveRoom, host != null ? host.getMemName() : null, currentUserCount);
+        return convertToDto(liveRoom, host != null ? host.getUsername() : null, currentUserCount);
     }
 
     /**
@@ -198,7 +197,7 @@ public class LiveRoomService {
         return liveRoomPage.map(liveRoom -> {
             Member host = memberService.findById(liveRoom.getHostMemNo()).orElse(null);
             Long currentUserCount = getCurrentUserCount(liveRoom.getLiveNo());
-            return convertToDto(liveRoom, host != null ? host.getMemName() : null, currentUserCount);
+            return convertToDto(liveRoom, host != null ? host.getUsername() : null, currentUserCount);
         });
     }
 
@@ -214,7 +213,7 @@ public class LiveRoomService {
                 .map(liveRoom -> {
                     Long currentUserCount = liveRoom.getStatus() == LiveRoom.LiveStatus.LIVE 
                             ? getCurrentUserCount(liveRoom.getLiveNo()) : 0L;
-                    return convertToDto(liveRoom, host != null ? host.getMemName() : null, currentUserCount);
+                    return convertToDto(liveRoom, host != null ? host.getUsername() : null, currentUserCount);
                 })
                 .collect(Collectors.toList());
     }
@@ -231,7 +230,7 @@ public class LiveRoomService {
                 .map(liveRoom -> {
                     Member host = memberService.findById(liveRoom.getHostMemNo()).orElse(null);
                     Long currentUserCount = getCurrentUserCount(liveRoom.getLiveNo());
-                    return convertToDto(liveRoom, host != null ? host.getMemName() : null, currentUserCount);
+                    return convertToDto(liveRoom, host != null ? host.getUsername() : null, currentUserCount);
                 })
                 .collect(Collectors.toList());
     }

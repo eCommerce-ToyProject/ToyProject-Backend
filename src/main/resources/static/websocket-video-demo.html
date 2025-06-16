@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 동영상 스트리밍 (데모 - 비추천)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .warning { background: #ff6b6b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .video-container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        video { width: 100%; max-width: 400px; border: 2px solid #ddd; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        .info { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .fps { font-size: 12px; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning">
+            ⚠️ <strong>경고:</strong> 이것은 교육용 데모입니다. 실제 서비스에서는 사용하지 마세요!<br>
+            WebSocket으로 동영상을 전송하면 극심한 지연과 품질 저하가 발생합니다.
+        </div>
+
+        <div class="video-container">
+            <h3>📹 송신자 (방송자)</h3>
+            <video id="localVideo" autoplay muted></video>
+            <div>
+                <button id="startBtn" onclick="startStreaming()">방송 시작</button>
+                <button id="stopBtn" onclick="stopStreaming()" disabled>방송 중지</button>
+                <select id="qualitySelect">
+                    <option value="160x120">160x120 (최저화질)</option>
+                    <option value="320x240" selected>320x240 (저화질)</option>
+                    <option value="640x480">640x480 (중간화질 - 비추천)</option>
+                </select>
+            </div>
+            <div class="fps" id="senderInfo">대기 중...</div>
+        </div>
+
+        <div class="video-container">
+            <h3>📺 수신자 (시청자)</h3>
+            <video id="remoteVideo" autoplay controls></video>
+            <div>
+                <button onclick="connectViewer()">시청 시작</button>
+            </div>
+            <div class="fps" id="viewerInfo">연결 대기 중...</div>
+        </div>
+
+        <div class="info">
+            <h4>🚨 WebSocket 동영상 스트리밍의 문제점:</h4>
+            <ul>
+                <li><strong>극심한 지연:</strong> 5-10초 이상의 딜레이</li>
+                <li><strong>대역폭 낭비:</strong> 실시간 압축 불가</li>
+                <li><strong>품질 저하:</strong> 저해상도만 가능</li>
+                <li><strong>서버 부하:</strong> 모든 데이터가 서버 경유</li>
+                <li><strong>확장성 문제:</strong> 시청자 증가 시 서버 부하 급증</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        let localStream = null;
+        let stompClient = null;
+        let canvas = null;
+        let ctx = null;
+        let isStreaming = false;
+        let frameCount = 0;
+        let startTime = Date.now();
+
+        // WebSocket 연결
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null;
+            
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                
+                // 비디오 스트림 수신 구독
+                stompClient.subscribe('/topic/video/stream', function(message) {
+                    const frameData = message.body;
+                    displayFrame(frameData);
+                });
+            });
+        }
+
+        async function startStreaming() {
+            try {
+                const quality = document.getElementById('qualitySelect').value;
+                const [width, height] = quality.split('x').map(Number);
+
+                // 카메라 접근
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: width, 
+                        height: height,
+                        frameRate: 5 // 극저 프레임레이트
+                    },
+                    audio: false // 오디오는 WebSocket으로 불가능
+                });
+
+                document.getElementById('localVideo').srcObject = localStream;
+
+                // Canvas 설정 (프레임 캡처용)
+                canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                ctx = canvas.getContext('2d');
+
+                // WebSocket 연결
+                connectWebSocket();
+
+                // 프레임 전송 시작
+                isStreaming = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+
+                captureAndSend();
+
+            } catch (error) {
+                console.error('스트리밍 시작 실패:', error);
+                alert('카메라 접근에 실패했습니다: ' + error.message);
+            }
+        }
+
+        function captureAndSend() {
+            if (!isStreaming) return;
+
+            // 비디오에서 프레임 캡처
+            const video = document.getElementById('localVideo');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Base64로 인코딩 (매우 비효율적!)
+            const frameData = canvas.toDataURL('image/jpeg', 0.3); // 30% 품질
+
+            // WebSocket으로 전송
+            if (stompClient && stompClient.connected) {
+                try {
+                    stompClient.send('/app/video/frame', {}, frameData);
+                    
+                    // FPS 계산
+                    frameCount++;
+                    const elapsed = (Date.now() - startTime) / 1000;
+                    const fps = (frameCount / elapsed).toFixed(1);
+                    document.getElementById('senderInfo').textContent = 
+                        `전송 중... FPS: ${fps}, 프레임 크기: ${Math.round(frameData.length / 1024)}KB`;
+                        
+                } catch (error) {
+                    console.error('프레임 전송 실패:', error);
+                }
+            }
+
+            // 다음 프레임 (매우 낮은 FPS)
+            setTimeout(captureAndSend, 200); // 5 FPS
+        }
+
+        function stopStreaming() {
+            isStreaming = false;
+            
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            
+            if (stompClient) {
+                stompClient.disconnect();
+            }
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('senderInfo').textContent = '방송 중지됨';
+        }
+
+        function connectViewer() {
+            if (!stompClient) {
+                connectWebSocket();
+            }
+            document.getElementById('viewerInfo').textContent = '시청 중...';
+        }
+
+        function displayFrame(frameData) {
+            const video = document.getElementById('remoteVideo');
+            video.src = frameData;
+            
+            const now = Date.now();
+            const kb = Math.round(frameData.length / 1024);
+            document.getElementById('viewerInfo').textContent = 
+                `수신 중... 프레임 크기: ${kb}KB, 시간: ${new Date(now).toLocaleTimeString()}`;
+        }
+
+        // 페이지 언로드 시 정리
+        window.addEventListener('beforeunload', stopStreaming);
+    </script>
+</body>
+</html>

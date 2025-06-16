@@ -480,8 +480,9 @@
         }
 
         function joinChat(liveNo) {
-            // 새 탭에서 채팅 페이지 열기
-            window.open(`/chat-test.html?liveNo=${liveNo}`, '_blank');
+            const memNo = document.getElementById('manageHostMemNo').value;
+            // 새로운 라이브 채팅 페이지로 이동
+            window.open(`/live-chat.html?liveNo=${liveNo}&memNo=${memNo}`, '_blank');
         }
 
         // 자동 새로고침 (30초마다)

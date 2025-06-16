@@ -1,0 +1,122 @@
+### 인증 전용 테스트 파일
+
+### 변수 설정
+@baseUrl = http://localhost:8080
+
+### 1. 일반 사용자 로그인
+POST {{baseUrl}}/sign-in
+Content-Type: application/json
+
+{
+  "memId": "john123",
+  "memPwd": "password123"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("userAccessToken", data.accessToken);
+    client.global.set("userRefreshToken", data.refreshToken);
+    client.global.set("userTokenType", data.grantType || "Bearer");
+    console.log("일반 사용자 토큰 저장 완료");
+  }
+%}
+
+### 2. 관리자 로그인
+POST {{baseUrl}}/sign-in
+Content-Type: application/json
+
+{
+  "memId": "admin",
+  "memPwd": "admin123"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("adminAccessToken", data.accessToken);
+    client.global.set("adminRefreshToken", data.refreshToken);
+    client.global.set("adminTokenType", data.grantType || "Bearer");
+    console.log("관리자 토큰 저장 완료");
+  }
+%}
+
+### 3. 일반 사용자 권한으로 내 정보 조회
+GET {{baseUrl}}/my-info
+Authorization: {{userTokenType}} {{userAccessToken}}
+
+### 4. 관리자 권한으로 내 정보 조회
+GET {{baseUrl}}/my-info
+Authorization: {{adminTokenType}} {{adminAccessToken}}
+
+### 5. 일반 사용자 토큰 갱신
+POST {{baseUrl}}/reissue
+Content-Type: application/json
+
+{
+  "refreshToken": "{{userRefreshToken}}"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("userAccessToken", data.accessToken);
+    if (data.refreshToken) {
+      client.global.set("userRefreshToken", data.refreshToken);
+    }
+    console.log("일반 사용자 토큰 갱신 완료");
+  }
+%}
+
+### 6. 관리자 토큰 갱신
+POST {{baseUrl}}/reissue
+Content-Type: application/json
+
+{
+  "refreshToken": "{{adminRefreshToken}}"
+}
+
+> {%
+  if (response.status === 200) {
+    const data = response.body;
+    client.global.set("adminAccessToken", data.accessToken);
+    if (data.refreshToken) {
+      client.global.set("adminRefreshToken", data.refreshToken);
+    }
+    console.log("관리자 토큰 갱신 완료");
+  }
+%}
+
+### 7. 토큰 정보 확인
+GET {{baseUrl}}/api/test/token-info
+Authorization: {{userTokenType}} {{userAccessToken}}
+
+### 8. 만료된 토큰 테스트
+GET {{baseUrl}}/my-info
+Authorization: Bearer expired_token_for_test
+
+### 9. 일반 사용자 로그아웃
+POST {{baseUrl}}/logout
+Authorization: {{userTokenType}} {{userAccessToken}}
+
+> {%
+  if (response.status === 200) {
+    client.global.clear("userAccessToken");
+    client.global.clear("userRefreshToken");
+    client.global.clear("userTokenType");
+    console.log("일반 사용자 로그아웃 완료");
+  }
+%}
+
+### 10. 관리자 로그아웃
+POST {{baseUrl}}/logout
+Authorization: {{adminTokenType}} {{adminAccessToken}}
+
+> {%
+  if (response.status === 200) {
+    client.global.clear("adminAccessToken");
+    client.global.clear("adminRefreshToken");
+    client.global.clear("adminTokenType");
+    console.log("관리자 로그아웃 완료");
+  }
+%}
