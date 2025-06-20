@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 .requestMatchers("/members/sign-in").permitAll()
                                 .requestMatchers("/members/reissuanceAccessToken").permitAll()
                                 .requestMatchers("/goods/**").permitAll()
+                                .requestMatchers("/api/live").permitAll()
 //                                .requestMatchers("/members/loginCheck").permitAll()
                                 .requestMatchers("/members/id/exists").permitAll()
                                 //테스트를 위해서 일단 모든 요청을 허가함 추후 삭제 필요
