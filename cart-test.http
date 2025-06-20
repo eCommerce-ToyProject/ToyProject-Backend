@@ -1,0 +1,78 @@
+### 장바구니 API 테스트
+
+### 1. 장바구니 조회 (회원번호: 1)
+GET http://localhost:8080/cart/1
+Accept: application/json
+
+### 2. 장바구니에 상품 추가
+POST http://localhost:8080/cart/1/items
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "goodsNo": 1,
+  "itemQty": 2,
+  "price": 19900
+}
+
+### 3. 장바구니에 다른 상품 추가
+POST http://localhost:8080/cart/1/items
+Content-Type: application/json
+
+{
+  "goodsNo": 4,
+  "itemQty": 1,
+  "price": 159000
+}
+
+### 4. 장바구니 상품 수량 수정 (cartItemId는 실제 값으로 변경 필요)
+PUT http://localhost:8080/cart/1/items/1
+Content-Type: application/json
+
+{
+  "itemQty": 3
+}
+
+### 5. 장바구니 상품 삭제 (cartItemId는 실제 값으로 변경 필요)
+DELETE http://localhost:8080/cart/1/items/1
+
+### 6. 장바구니 상품 개수 조회
+GET http://localhost:8080/cart/1/count
+Accept: application/json
+
+### 7. 장바구니 전체 비우기
+DELETE http://localhost:8080/cart/1
+
+### 8. 빈 장바구니 조회
+GET http://localhost:8080/cart/1
+Accept: application/json
+
+### 잘못된 요청 테스트
+
+### 9. 존재하지 않는 상품 추가 (에러 테스트)
+POST http://localhost:8080/cart/1/items
+Content-Type: application/json
+
+{
+  "goodsNo": 999,
+  "itemQty": 1,
+  "price": 10000
+}
+
+### 10. 잘못된 수량으로 상품 추가 (에러 테스트)
+POST http://localhost:8080/cart/1/items
+Content-Type: application/json
+
+{
+  "goodsNo": 1,
+  "itemQty": 0,
+  "price": 19900
+}
+
+### 11. 다른 회원의 장바구니 아이템 수정 시도 (권한 에러 테스트)
+PUT http://localhost:8080/cart/2/items/1
+Content-Type: application/json
+
+{
+  "itemQty": 5
+}
