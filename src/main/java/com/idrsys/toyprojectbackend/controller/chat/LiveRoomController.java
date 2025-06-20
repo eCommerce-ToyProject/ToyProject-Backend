@@ -26,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Live Room API", description = "라이브 방송 관리 API")
+@CrossOrigin(origins = "*", maxAge = 3600) // React 개발 서버를 위한 CORS 설정
 public class LiveRoomController {
 
     private final LiveRoomService liveRoomService;
