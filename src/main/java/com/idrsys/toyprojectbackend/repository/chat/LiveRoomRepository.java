@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public interface LiveRoomRepository extends JpaRepository<LiveRoom, Long> {
     List<LiveRoom> findByHostMemNoOrderByStartTimeDesc(Integer hostMemNo);
     
     /**
-     * 특정 호스트의 특정 상태 라이브 방송 조회 (추가됨)
+     * 특정 호스트의 특정 상태 라이브 방송 조회
      */
     List<LiveRoom> findByHostMemNoAndStatus(Integer hostMemNo, LiveRoom.LiveStatus status);
     
@@ -38,6 +39,11 @@ public interface LiveRoomRepository extends JpaRepository<LiveRoom, Long> {
      * 특정 카테고리의 라이브 방송 조회
      */
     List<LiveRoom> findByCatCdAndStatusOrderByStartTimeDesc(Integer catCd, LiveRoom.LiveStatus status);
+    
+    /**
+     * 특정 상태이면서 시작 시간이 특정 시간 이후인 방송 조회 (스케줄 복구용)
+     */
+    List<LiveRoom> findByStatusAndStartTimeAfter(LiveRoom.LiveStatus status, LocalDateTime startTime);
     
     /**
      * 라이브 방송 존재 여부 및 상태 확인

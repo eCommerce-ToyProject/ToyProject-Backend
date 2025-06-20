@@ -4,6 +4,7 @@ import com.idrsys.toyprojectbackend.dto.cart.*;
 import com.idrsys.toyprojectbackend.entity.Cart;
 import com.idrsys.toyprojectbackend.entity.CartItem;
 import com.idrsys.toyprojectbackend.entity.Goods;
+import com.idrsys.toyprojectbackend.entity.Member;
 import com.idrsys.toyprojectbackend.exception.CartException;
 import com.idrsys.toyprojectbackend.repository.cart.CartRepository;
 import com.idrsys.toyprojectbackend.repository.cart.CartItemRepository;
@@ -27,6 +28,19 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final GoodsRepository goodsRepository;
+    private final MemberService memberService;
+
+    /**
+     * 장바구니 조회 (회원 ID로)
+     */
+    @Transactional(readOnly = true)
+    public CartDto getCartByMemberId(String memberId) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        return getCartByMemNo(member.getMemNo());
+    }
 
     /**
      * 장바구니 조회 (회원번호로)
@@ -50,7 +64,18 @@ public class CartService {
     }
 
     /**
-     * 장바구니에 상품 추가
+     * 장바구니에 상품 추가 (회원 ID로)
+     */
+    public CartDto addItemToCart(String memberId, AddCartItemRequest request) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        return addItemToCart(member.getMemNo(), request);
+    }
+
+    /**
+     * 장바구니에 상품 추가 (회원번호로)
      */
     public CartDto addItemToCart(Integer memNo, AddCartItemRequest request) {
         log.debug("장바구니 상품 추가 시작 - 회원번호: {}, 상품번호: {}", memNo, request.getGoodsNo());
@@ -94,7 +119,18 @@ public class CartService {
     }
 
     /**
-     * 장바구니 상품 수량 수정
+     * 장바구니 상품 수량 수정 (회원 ID로)
+     */
+    public CartDto updateCartItem(String memberId, Long cartItemId, UpdateCartItemRequest request) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        return updateCartItem(member.getMemNo(), cartItemId, request);
+    }
+
+    /**
+     * 장바구니 상품 수량 수정 (회원번호로)
      */
     public CartDto updateCartItem(Integer memNo, Long cartItemId, UpdateCartItemRequest request) {
         // 장바구니 아이템 조회
@@ -114,7 +150,18 @@ public class CartService {
     }
 
     /**
-     * 장바구니 상품 삭제
+     * 장바구니 상품 삭제 (회원 ID로)
+     */
+    public CartDto removeCartItem(String memberId, Long cartItemId) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        return removeCartItem(member.getMemNo(), cartItemId);
+    }
+
+    /**
+     * 장바구니 상품 삭제 (회원번호로)
      */
     public CartDto removeCartItem(Integer memNo, Long cartItemId) {
         // 장바구니 아이템 조회
@@ -132,7 +179,18 @@ public class CartService {
     }
 
     /**
-     * 장바구니 전체 비우기
+     * 장바구니 전체 비우기 (회원 ID로)
+     */
+    public void clearCart(String memberId) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        clearCart(member.getMemNo());
+    }
+
+    /**
+     * 장바구니 전체 비우기 (회원번호로)
      */
     public void clearCart(Integer memNo) {
         Cart cart = cartRepository.findByMemNo(memNo)
@@ -142,7 +200,19 @@ public class CartService {
     }
 
     /**
-     * 장바구니 상품 개수 조회
+     * 장바구니 상품 개수 조회 (회원 ID로)
+     */
+    @Transactional(readOnly = true)
+    public Integer getCartItemCount(String memberId) {
+        // memberId로 회원 조회
+        Member member = memberService.findById(memberId)
+                .orElseThrow(() -> new CartException("회원을 찾을 수 없습니다."));
+        
+        return getCartItemCount(member.getMemNo());
+    }
+
+    /**
+     * 장바구니 상품 개수 조회 (회원번호로)
      */
     @Transactional(readOnly = true)
     public Integer getCartItemCount(Integer memNo) {

@@ -48,11 +48,23 @@
 
         <div class="grid">
             <div class="card">
+                <div class="card-icon">🎥</div>
+                <h3>WebRTC 라이브 스트리밍</h3>
+                <p>WebRTC를 활용한 실시간 1:N 라이브 스트리밍 데모입니다.</p>
+                <div class="card-buttons">
+                    <a href="/webrtc-live-demo.html" class="btn btn-primary">WebRTC 데모</a>
+                    <a href="/api/webrtc/stats" class="btn btn-secondary" target="_blank">서버 상태</a>
+                    <a href="/api/webrtc/health" class="btn btn-success" target="_blank">헬스 체크</a>
+                </div>
+            </div>
+
+            <div class="card">
                 <div class="card-icon">📺</div>
                 <h3>라이브 방송 관리</h3>
                 <p>라이브 방송을 생성, 시작, 종료하고 실시간 접속자 수를 확인할 수 있습니다.</p>
                 <div class="card-buttons">
                     <a href="/live-room-test.html" class="btn btn-primary">방송 관리</a>
+                    <a href="/webrtc-live-demo.html" class="btn btn-success">WebRTC 라이브</a>
                     <a href="/api/live" class="btn btn-secondary" target="_blank">API 문서</a>
                 </div>
             </div>
@@ -101,6 +113,10 @@
                     <p>WebSocket을 통한 실시간 메시징</p>
                 </div>
                 <div class="feature-item">
+                    <h4>🎥 WebRTC 스트리밍</h4>
+                    <p>실시간 비디오/오디오 스트리밍</p>
+                </div>
+                <div class="feature-item">
                     <h4>📱 반응형 디자인</h4>
                     <p>모바일과 데스크톱 모두 지원</p>
                 </div>
@@ -128,24 +144,27 @@
                 <div class="api-item"><strong>채팅 기록</strong><br><code>GET /api/chat/history/{liveNo}</code><br><small>채팅 기록 조회</small></div>
                 <div class="api-item"><strong>접속자 수</strong><br><code>GET /api/chat/usercount/{liveNo}</code><br><small>실시간 접속자 수</small></div>
                 <div class="api-item"><strong>WebSocket</strong><br><code>WS /ws</code><br><small>실시간 통신</small></div>
+                <div class="api-item"><strong>WebRTC 시그널링</strong><br><code>WS /signaling</code><br><small>WebRTC 신호 처리</small></div>
+                <div class="api-item"><strong>WebRTC 상태</strong><br><code>GET /api/webrtc/stats</code><br><small>방 및 사용자 통계</small></div>
             </div>
         </div>
 
         <div class="api-section">
             <h3>🎬 빠른 시작 가이드</h3>
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745;">
-                <h4>1단계: 라이브 방송 생성</h4>
-                <p>• <a href="/live-room-test.html" style="color: #667eea;">라이브 방송 관리</a> 페이지에서 새 방송 생성</p>
-                <p>• 호스트 정보와 방송 제목 입력</p><br>
-                <h4>2단계: 방송 시작</h4>
-                <p>• 생성된 방송을 "방송 시작" 버튼으로 시작</p>
-                <p>• 상태가 "LIVE"로 변경됨</p><br>
-                <h4>3단계: 채팅 참여</h4>
-                <p>• "채팅 참여" 버튼으로 실시간 채팅 시작</p>
-                <p>• <a href="/mobile-chat.html" style="color: #667eea;">모바일 채팅</a>도 지원</p><br>
-                <h4>4단계: API 테스트</h4>
-                <p>• IntelliJ의 <code>api-test.http</code> 파일로 API 테스트</p>
-                <p>• 로그인 → 방송 생성 → 채팅 → 방송 종료 전체 플로우 확인</p>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 20px;">
+                <h4>📺 라이브 방송 시스템</h4>
+                <p><strong>1단계:</strong> <a href="/live-room-test.html" style="color: #667eea;">라이브 방송 관리</a> 페이지에서 새 방송 생성</p>
+                <p><strong>2단계:</strong> 생성된 방송을 "방송 시작" 버튼으로 시작</p>
+                <p><strong>3단계:</strong> "채팅 참여" 버튼으로 실시간 채팅 시작</p>
+                <p><strong>4단계:</strong> IntelliJ의 <code>api-test.http</code> 파일로 API 테스트</p>
+            </div>
+            <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <h4>🎥 WebRTC 라이브 스트리밍</h4>
+                <p><strong>1단계:</strong> <a href="/webrtc-live-demo.html" style="color: #667eea;">WebRTC 데모</a> 페이지 접속</p>
+                <p><strong>2단계:</strong> "방송하기" 또는 "시청하기" 역할 선택</p>
+                <p><strong>3단계:</strong> 방 ID와 사용자 ID 입력 후 연결</p>
+                <p><strong>4단계:</strong> 카메라/마이크 권한 허용 (방송자의 경우)</p>
+                <p><strong>5단계:</strong> 실시간 스트리밍 시작!</p>
             </div>
         </div>
     </div>

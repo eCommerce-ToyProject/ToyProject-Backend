@@ -45,9 +45,9 @@ public class LiveRoomController {
     @Operation(summary = "라이브 방송 시작", description = "예정된 라이브 방송을 시작합니다.")
     public ResponseEntity<LiveRoomDto> startLiveRoom(
             @Parameter(description = "라이브 방송 번호") @PathVariable Long liveNo,
-            @Parameter(description = "호스트 회원 번호") @RequestParam Integer hostMemNo) {
+            @Parameter(description = "호스트 회원 ID") @RequestParam String hostMemberId) {
         
-        LiveRoomDto liveRoom = liveRoomService.startLiveRoom(liveNo, hostMemNo);
+        LiveRoomDto liveRoom = liveRoomService.startLiveRoom(liveNo, hostMemberId);
         return ResponseEntity.ok(liveRoom);
     }
 
@@ -58,9 +58,9 @@ public class LiveRoomController {
     @Operation(summary = "라이브 방송 종료", description = "진행 중인 라이브 방송을 종료합니다.")
     public ResponseEntity<LiveRoomDto> endLiveRoom(
             @Parameter(description = "라이브 방송 번호") @PathVariable Long liveNo,
-            @Parameter(description = "호스트 회원 번호") @RequestParam Integer hostMemNo) {
+            @Parameter(description = "호스트 회원 ID") @RequestParam String hostMemberId) {
         
-        LiveRoomDto liveRoom = liveRoomService.endLiveRoom(liveNo, hostMemNo);
+        LiveRoomDto liveRoom = liveRoomService.endLiveRoom(liveNo, hostMemberId);
         return ResponseEntity.ok(liveRoom);
     }
 
@@ -71,10 +71,10 @@ public class LiveRoomController {
     @Operation(summary = "라이브 방송 정보 수정", description = "라이브 방송 정보를 수정합니다.")
     public ResponseEntity<LiveRoomDto> updateLiveRoom(
             @Parameter(description = "라이브 방송 번호") @PathVariable Long liveNo,
-            @Parameter(description = "호스트 회원 번호") @RequestParam Integer hostMemNo,
+            @Parameter(description = "호스트 회원 ID") @RequestParam String hostMemberId,
             @RequestBody LiveRoomUpdateDto updateDto) {
         
-        LiveRoomDto liveRoom = liveRoomService.updateLiveRoom(liveNo, hostMemNo, updateDto);
+        LiveRoomDto liveRoom = liveRoomService.updateLiveRoom(liveNo, hostMemberId, updateDto);
         return ResponseEntity.ok(liveRoom);
     }
 
@@ -106,12 +106,12 @@ public class LiveRoomController {
     /**
      * 특정 호스트의 라이브 방송 목록 조회
      */
-    @GetMapping("/host/{hostMemNo}")
+    @GetMapping("/host/{hostMemberId}")
     @Operation(summary = "호스트별 라이브 방송 조회", description = "특정 호스트의 라이브 방송 목록을 조회합니다.")
     public ResponseEntity<List<LiveRoomDto>> getLiveRoomsByHost(
-            @Parameter(description = "호스트 회원 번호") @PathVariable Integer hostMemNo) {
+            @Parameter(description = "호스트 회원 ID") @PathVariable String hostMemberId) {
         
-        List<LiveRoomDto> liveRooms = liveRoomService.getLiveRoomsByHost(hostMemNo);
+        List<LiveRoomDto> liveRooms = liveRoomService.getLiveRoomsByHost(hostMemberId);
         return ResponseEntity.ok(liveRooms);
     }
 
@@ -134,9 +134,9 @@ public class LiveRoomController {
     @Operation(summary = "라이브 방송 삭제", description = "라이브 방송을 삭제합니다. (진행 중이 아닌 경우만 가능)")
     public ResponseEntity<Void> deleteLiveRoom(
             @Parameter(description = "라이브 방송 번호") @PathVariable Long liveNo,
-            @Parameter(description = "호스트 회원 번호") @RequestParam Integer hostMemNo) {
+            @Parameter(description = "호스트 회원 ID") @RequestParam String hostMemberId) {
         
-        liveRoomService.deleteLiveRoom(liveNo, hostMemNo);
+        liveRoomService.deleteLiveRoom(liveNo, hostMemberId);
         return ResponseEntity.noContent().build();
     }
 

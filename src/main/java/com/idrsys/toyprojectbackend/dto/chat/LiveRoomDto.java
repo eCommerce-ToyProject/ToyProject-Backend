@@ -15,7 +15,8 @@ import java.time.LocalDateTime;
 public class LiveRoomDto {
     
     private Long liveNo;
-    private Integer hostMemNo;
+    private Integer hostMemNo;  // DB 저장용 (내부적으로 변환)
+    private String hostMemberId; // 외부 API용
     private String hostMemName;
     private Integer catCd;
     private String categoryName;

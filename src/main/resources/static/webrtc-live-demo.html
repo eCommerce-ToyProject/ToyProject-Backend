@@ -233,7 +233,15 @@
             document.getElementById('viewerBtn').classList.toggle('active', !broadcaster);
 
             const localSection = document.querySelector('.video-section:first-child h3');
-            localSection.textContent = broadcaster ? '📹 내 방송' : '📹 내 화면 (미리보기)';
+            const localControls = document.querySelector('.video-section:first-child div[style*="margin-top"]');
+            
+            if (broadcaster) {
+                localSection.textContent = '📹 내 방송';
+                localControls.style.display = 'block';
+            } else {
+                localSection.textContent = '📹 내 화면 (비활성)';
+                localControls.style.display = 'none';
+            }
 
             this.updateStatus(`역할 선택: ${broadcaster ? '방송자' : '시청자'}`);
         }
@@ -248,12 +256,17 @@
                     return;
                 }
 
+                if (this.isBroadcaster === null) {
+                    alert('방송자 또는 시청자 역할을 선택해주세요.');
+                    return;
+                }
+
                 this.updateStatus('연결 중...');
 
                 // WebSocket 연결
                 await this.connectWebSocket();
 
-                // 미디어 스트림 초기화
+                // 미디어 스트림 초기화 (방송자만)
                 if (this.isBroadcaster) {
                     await this.initializeLocalStream();
                 }
@@ -264,8 +277,11 @@
                 // 방 입장
                 this.joinRoom();
 
+                // UI 상태 업데이트
                 document.getElementById('connectBtn').disabled = true;
                 document.getElementById('disconnectBtn').disabled = false;
+                document.getElementById('broadcasterBtn').disabled = true;
+                document.getElementById('viewerBtn').disabled = true;
 
             } catch (error) {
                 console.error('연결 실패:', error);
@@ -275,8 +291,12 @@
 
         async connectWebSocket() {
             return new Promise((resolve, reject) => {
-                // WebSocket 서버 주소 (실제 서버 주소로 변경 필요)
-                this.ws = new WebSocket('ws://localhost:8080/signaling');
+                // WebSocket 서버 주소
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host;
+                const wsUrl = `${protocol}//${host}/signaling`;
+                
+                this.ws = new WebSocket(wsUrl);
 
                 this.ws.onopen = () => {
                     this.updateStatus('WebSocket 연결됨');
@@ -440,14 +460,17 @@
             try {
                 await this.pc.setRemoteDescription(offer);
 
-                const answer = await this.pc.createAnswer();
-                await this.pc.setLocalDescription(answer);
+                // 시청자인 경우에만 answer 생성
+                if (!this.isBroadcaster) {
+                    const answer = await this.pc.createAnswer();
+                    await this.pc.setLocalDescription(answer);
 
-                this.sendSignalingMessage('answer', {
-                    answer: answer
-                });
+                    this.sendSignalingMessage('answer', {
+                        answer: answer
+                    });
 
-                this.updateStatus('Answer 전송됨');
+                    this.updateStatus('Answer 전송됨');
+                }
             } catch (error) {
                 console.error('Offer 처리 실패:', error);
             }
@@ -482,6 +505,12 @@
                     userId: this.userId,
                     data: data
                 };
+                
+                // join-room 메시지의 경우 isBroadcaster를 최상위 레벨에 추가
+                if (type === 'join-room') {
+                    message.isBroadcaster = data.isBroadcaster || this.isBroadcaster;
+                }
+                
                 this.ws.send(JSON.stringify(message));
             }
         }
@@ -549,6 +578,12 @@
             document.getElementById('remoteVideo').srcObject = null;
             document.getElementById('connectBtn').disabled = false;
             document.getElementById('disconnectBtn').disabled = true;
+            document.getElementById('toggleVideo').textContent = '카메라 끄기';
+            document.getElementById('toggleAudio').textContent = '마이크 끄기';
+
+            // 역할 선택 활성화
+            document.getElementById('broadcasterBtn').disabled = false;
+            document.getElementById('viewerBtn').disabled = false;
 
             this.updateStatus('연결 해제됨');
             this.updateViewersList([]);

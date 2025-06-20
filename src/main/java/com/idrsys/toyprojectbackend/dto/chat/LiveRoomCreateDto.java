@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LiveRoomCreateDto {
     
-    @NotNull(message = "호스트 회원 번호는 필수입니다")
-    private Integer hostMemNo;
+    @NotBlank(message = "호스트 회원 ID는 필수입니다")
+    private String hostMemberId;
     
     @NotNull(message = "카테고리 코드는 필수입니다")
     private Integer catCd;
@@ -26,4 +26,10 @@ public class LiveRoomCreateDto {
     private LocalDateTime startTime;
     
     private LocalDateTime endTime;
+    
+    /**
+     * 자동 시작 여부 (기본값: true)
+     * false로 설정하면 수동으로만 시작 가능
+     */
+    private Boolean autoStart = true;
 }
