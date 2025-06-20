@@ -70,7 +70,22 @@ public class WebRTCSignalingService {
             return;
         }
         
-        log.info("User {} joining room {} as {}", userId, roomId, isBroadcaster ? "broadcaster" : "viewer");
+        // roomId가 숫자인 경우 liveNo로 간주 (예: "123")
+        // roomId가 "room123" 형태인 경우 숫자 부분 추출
+        Long liveNo = null;
+        try {
+            if (roomId.startsWith("room")) {
+                liveNo = Long.parseLong(roomId.substring(4)); // "room123" -> 123
+            } else {
+                liveNo = Long.parseLong(roomId); // "123" -> 123
+            }
+        } catch (NumberFormatException e) {
+            log.warn("Invalid roomId format: {}", roomId);
+            sendErrorMessage(session, "Invalid roomId format. Use liveNo (number) or room+liveNo format");
+            return;
+        }
+        
+        log.info("User {} joining live {} as {}", userId, liveNo, isBroadcaster ? "broadcaster" : "viewer");
         
         // 세션 정보 저장
         sessionToUserId.put(session.getId(), userId);
@@ -86,7 +101,7 @@ public class WebRTCSignalingService {
                 return;
             }
             room.setBroadcaster(userId, session);
-            log.info("Broadcaster {} joined room {}", userId, roomId);
+            log.info("Broadcaster {} joined live {}", userId, liveNo);
         } else {
             // 1:1 연결을 위해 시청자 수 제한 (임시 해결책)
             if (room.getViewers().size() >= 1) {
@@ -95,7 +110,7 @@ public class WebRTCSignalingService {
             }
             
             room.addViewer(userId, session);
-            log.info("Viewer {} joined room {}", userId, roomId);
+            log.info("Viewer {} joined live {}", userId, liveNo);
             
             // 다른 사용자들에게 새 사용자 입장 알림
             notifyUserJoined(room, userId);
@@ -105,6 +120,7 @@ public class WebRTCSignalingService {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("viewers", new ArrayList<>(room.getViewers()));
         responseData.put("roomSize", room.getViewers().size() + (room.hasBroadcaster() ? 1 : 0));
+        responseData.put("liveNo", liveNo);
         responseData.put("success", true);
         sendMessage(session, "room-joined", responseData);
     }
@@ -276,5 +292,18 @@ public class WebRTCSignalingService {
         return rooms.values().stream()
                 .mapToInt(room -> (room.hasBroadcaster() ? 1 : 0) + room.getViewers().size())
                 .sum();
+    }
+    
+    public int getRoomUserCount(String roomId) {
+        WebRTCRoom room = rooms.get(roomId);
+        if (room == null) {
+            return 0;
+        }
+        return (room.hasBroadcaster() ? 1 : 0) + room.getViewers().size();
+    }
+    
+    public boolean hasActiveBroadcaster(String roomId) {
+        WebRTCRoom room = rooms.get(roomId);
+        return room != null && room.hasBroadcaster();
     }
 }

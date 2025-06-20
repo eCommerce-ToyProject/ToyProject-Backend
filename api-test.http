@@ -69,7 +69,7 @@ Authorization: Bearer {{accessToken}}
 ### ========== 장바구니 API 테스트 ==========
 
 ### 2. 장바구니 조회 (회원번호: 1)
-GET {{baseUrl}}/cart/1
+GET {{baseUrl}}/cart/jammykim1
 Accept: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -88,7 +88,7 @@ Authorization: Bearer {{accessToken}}
 %}
 
 ### 3. 장바구니에 상품 추가 (유니클로 티셔츠)
-POST {{baseUrl}}/cart/1/items
+POST {{baseUrl}}/cart/jammykim1/items
 Content-Type: {{contentType}}
 Authorization: Bearer {{accessToken}}
 
@@ -117,7 +117,7 @@ Authorization: Bearer {{accessToken}}
 %}
 
 ### 4. 장바구니에 다른 상품 추가 (나이키 신발)
-POST {{baseUrl}}/cart/1/items
+POST {{baseUrl}}/cart/jammykim1/items
 Content-Type: {{contentType}}
 Authorization: Bearer {{accessToken}}
 
